@@ -41,10 +41,10 @@ def _run(overrides: list[str], tmp_path: Path) -> Out:
 
 
 def test_static_runs_every_arm_and_random_search(tmp_path: Path) -> None:
-    run = _run(["task.arms=[ei,ucb0.9]"], tmp_path)
+    run = _run(["task.arms=[ei,ucb0.9]", "task.null_reference=true", "task.base=ei"], tmp_path)
     best = run.tables["best"]
-    assert set(best.arm) == {"ei", "ucb0.9", "random"}
-    assert len(best) == 3 * 3 * (2 * 2 + 1)  # arms x tasks x (T + 1)
+    assert set(best.arm) == {"ei", "ucb0.9", "ei@0", "random"}
+    assert len(best) == 4 * 3 * (2 * 2 + 1)  # arms x tasks x (T + 1)
     assert (best.groupby(["arm", "task"]).best_f.diff().dropna() <= 0).all()  # best-so-far
     fstar = run.tables["fstar"].set_index("task").fstar
     assert (best.groupby("task").best_f.min() >= fstar - 1e-6).all()

@@ -1,0 +1,18 @@
+# @package _global_
+# How much does switching acquisition functions within a run gain over the best static arm?
+# Pre-registration: notebooks/02_2026-10-21_switching.ipynb. Base arm and portfolio per d come from
+# static_tune (selection rule there); the pilot runs on split 2, confirm on split 1.
+# Sweep: task.d=2,4,6 task.method=static,privileged,belief,equal_arms
+defaults:
+  - override /task: bo
+
+task:
+  split: 2
+  n_tasks: 48
+  null_reference: true
+  # PROVISIONAL until static_tune is decided (then set from its selection rule and committed)
+  base_by_d: {2: ei, 4: ei, 6: ei}
+  arms_by_d:
+    2: [ei, pi0.05, ucb0.9, mes, es, mean]
+    4: [ei, pi0.05, ucb0.9, mes, es, mean]
+    6: [ei, pi0.05, ucb0.9, mes, es, mean]

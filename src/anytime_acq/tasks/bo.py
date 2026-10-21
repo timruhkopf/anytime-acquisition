@@ -1,7 +1,8 @@
 """BO runs on BNN-prior tasks with the frozen PFN: static arms, random search, rollout controllers.
 
 One member = one d and one method:
-- `static`: every arm in `arms` (plus random search) on the same tasks, replicate 0;
+- `static`: every arm in `arms` (plus random search, and `base@0` if `null_reference`) on the same
+  tasks, replicate 0;
 - `privileged` / `belief`: the rollout controller over `arms` with base arm `base` (bo/runner.py);
 - `equal_arms` (the null control): the privileged controller over K copies of the base arm, each
   restricted to its own random half of the candidates (`base@k`). Its gain over the static `base@0`
@@ -31,11 +32,10 @@ METHODS = ("static", "privileged", "belief", "equal_arms")
 RANDOM = "random"
 
 
-def per_d(value: object, d: int) -> object:
-    """A config value, or {d: value} for values that depend on d."""
-    if OmegaConf.is_dict(value) or isinstance(value, dict):
-        return value[d] if d in value else value[str(d)]
-    return value
+def per_d(t: DictConfig, key: str) -> object:
+    """task.<key>, unless task.<key>_by_d gives a value for this d."""
+    by_d = t.get(f"{key}_by_d")
+    return by_d[t.d] if by_d is not None and t.d in by_d else t[key]
 
 
 def budget_for(t: DictConfig) -> Budget:
@@ -81,8 +81,8 @@ def bo(cfg: DictConfig, run: Run) -> float:
     torch.backends.cudnn.allow_tf32 = bool(t.tf32)
     dev = t.device
     d, budget = int(t.d), budget_for(t)
-    arms = list(per_d(t.arms, d))
-    base = str(per_d(t.base, d))
+    arms = list(per_d(t, "arms"))
+    base = str(per_d(t, "base"))
 
     t0 = time.time()
     seeds = [task_seed(t.split, d, t.task_offset + i) for i in range(t.n_tasks)]
@@ -98,6 +98,8 @@ def bo(cfg: DictConfig, run: Run) -> float:
 
     tables, Fs = [], {}
     if t.method == "static":
+        if t.null_reference:  # the static counterpart of the equal_arms controller
+            arms = [*arms, f"{base}@0"]
         for arm in arms:
             t0 = time.time()
             Fs[arm] = run_static(engine, tasks, arm, budget, dev)["F"]
