@@ -1,0 +1,36 @@
+# Amortized EI with a PFN-VLA action expert (tasks/ei_readout.py, readout/).
+name: ei_readout
+d: 2
+trunk: pfn_all        # pfn_all | pfn_last | d_only
+n_probe: 0            # extra memory: the frozen PFN's state at fixed Sobol probes (0 = off)
+pfn: pfn_large
+device: cuda
+d_expert: 128
+n_heads: 4
+n_mix: 16             # mixture components of the head (logit space)
+data:
+  split_train: 3      # task seed splits (bo/tasks.py::task_seed); disjoint from the BO studies
+  split_test: 4
+  n_tasks_train: 4096
+  n_tasks_test: 256
+  n_init_per_d: 2     # states: EI trajectories with n_init = 2d, T = 10d, plus random contexts
+  T_per_d: 10
+  lam: 0.03           # Boltzmann temperature, relative to max EI
+  n_top: 128          # heaviest candidates kept as the target
+  n_sobol: 4096
+  n_local: 64
+  local_sigmas: [0.01, 0.05, 0.2]
+steps: 20000
+batch: 256
+lr: 3.0e-4
+weight_decay: 0.01
+log_every: 100
+val_every: 2000
+val_size: 4096
+save_checkpoint: true
+closed_loop:
+  split: 5
+  n_tasks: 200
+  n_init_per_d: 2
+  T_per_d: 10
+  candidates: {n_sobol: 1024, n_local: 64, local_sigmas: [0.01, 0.05, 0.2]}

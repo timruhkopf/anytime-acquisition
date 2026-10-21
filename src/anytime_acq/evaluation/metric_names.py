@@ -15,3 +15,12 @@ TRAIN_MSE = "train/mse"
 FINAL_TRAIN_MSE = "final/train_mse"
 FINAL_EVAL_MSE = "final/eval_mse"
 FINAL_W_ERROR = "final/w_error"
+
+# ei_readout
+TRAIN_LOSS = "train/loss"
+VAL_LOSS = "val/loss"
+FINAL_VAL_LOSS = "final/val_loss"
+EI_RATIO_MODE_MEDIAN = "final/ei_ratio_mode_median"
+EI_RATIO_MODE_P10 = "final/ei_ratio_mode_p10"
+EI_RATIO_SAMPLE_MEDIAN = "final/ei_ratio_sample_median"
+EI_RATIO_SAMPLE_P10 = "final/ei_ratio_sample_p10"

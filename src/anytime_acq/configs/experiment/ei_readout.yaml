@@ -1,0 +1,6 @@
+# @package _global_
+# Does a PFN-VLA action expert reading pfn_large's context K/V learn amortized EI better than a matched
+# encoder trained from scratch (D-only)? Pre-registration: notebook 03.
+# Sweep: task.trunk=pfn_all,pfn_last,d_only (+ task.n_probe=256 with pfn_all) at task.d=2
+defaults:
+  - override /task: ei_readout
