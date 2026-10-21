@@ -1,0 +1,12 @@
+# @package _global_
+# Which static acquisition arms are competitive with pfn_large, per d? Selects the base arm B* and the
+# switching portfolio on the tuning split (0); the switching experiment re-measures them on split 1.
+# Sweep: task.d=2,4,6
+defaults:
+  - override /task: bo
+
+task:
+  split: 0
+  n_tasks: 200
+  method: static
+  arms: [ei, ei0.01, ei0.05, pi0.01, pi0.05, pi0.1, ucb0.8, ucb0.9, ucb0.95, ucb0.99, mean, mes, es]

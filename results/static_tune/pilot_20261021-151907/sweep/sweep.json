@@ -1,0 +1,23 @@
+{
+ "id": "pilot_20261021-151907",
+ "experiment": "static_tune",
+ "stage": "pilot",
+ "kind": "grid",
+ "command": "just sweep detached pilot experiment=static_tune task.d=2,4,6 'task.arms=[ucb0.995,ucb0.999,pi,pi0.001]' task.random_search=false",
+ "overrides": [
+  "experiment=static_tune",
+  "task.d=2,4,6",
+  "task.arms=[ucb0.995,ucb0.999,pi,pi0.001]",
+  "task.random_search=false"
+ ],
+ "backend": "detached",
+ "commit": "f23437027b1a8b7a86685111f49d48238e3198c2",
+ "branch": "HEAD",
+ "tag": "sweep/static_tune/pilot_20261021-151907",
+ "allow_dirty": false,
+ "dirty_paths": [],
+ "editable_dependencies": {},
+ "host": "ulysses",
+ "created": "2026-10-21T15:19:07",
+ "n_members": 3
+}

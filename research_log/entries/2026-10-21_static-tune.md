@@ -53,6 +53,21 @@ controller.
 Both sweep dirs stay on ulysses, and their tags exist. The tuning run is `pilot_20261021-150441`
 (commit f234370, fp32).
 
-## §3 Pilot: selection (2026-10-21)
+## §3 Pilot: the pre-registered grid (2026-10-21, 15:04–15:18)
 
-What ran, the result (numbers from the snapshot), interpretation, next step.
+Sweep `pilot_20261021-150441` (f234370; 3 members, 0.22 GPU-h): 13 arms + random search, 200 tasks per
+d. B\* by the rule: `mes` (d = 2), `ucb0.99` (d = 4, 6). **Problem:** `ucb0.99` and `pi0.01` were the
+edges of their grids, so the "tuned" baseline might not be tuned.
+
+## §4 Grid extension (deviation, 15:19–15:30)
+
+Sweep `pilot_20261021-151907`: `ucb0.995, ucb0.999, pi, pi0.001` on the same tasks and nuisance
+streams (same split, task list and seed, so it combines arm-for-arm with §3). This deviates from the
+pre-registered grid, but only on the tuning split: no evaluation data exists yet. Result: the UCB
+optimum is interior (0.995 at d = 4, 6; 0.99 ≈ 0.995 at d = 2) and PI stays at 0.01. Final selection
+(notebook 01): B\* = `mes` / `ucb0.995` / `ucb0.995` at d = 2 / 4 / 6. The portfolio is B\* plus ei,
+pi0.01, the best UCB or mes, es and mean. The top is flat: the runners-up' ratio CIs include 1. The
+per-task log-ratio sd is ≈ 0.55, which made me revise the switching NO-GO rule before any switching
+run (switching log §1).
+
+**Verdict: GO (selection made).**

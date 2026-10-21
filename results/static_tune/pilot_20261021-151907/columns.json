@@ -1,0 +1,1 @@
+{"params": ["task.d"], "metrics": ["final/log10_regret/pi", "final/log10_regret/pi0.001", "final/log10_regret/ucb0.995", "final/log10_regret/ucb0.999", "time/pi0.001_s", "time/pi_s", "time/tasks_s", "time/ucb0.995_s", "time/ucb0.999_s"]}
