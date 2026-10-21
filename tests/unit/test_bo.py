@@ -84,3 +84,13 @@ def test_regret_curve_is_monotone_and_nonnegative(setup) -> None:
     r = regret_curve(out["F"], tasks.fstar, BUDGET.n_init)
     assert r.shape == (tasks.B, BUDGET.T + 1)
     assert bool((r >= 0).all()) and bool((r[:, 1:] <= r[:, :-1] + 1e-7).all())
+
+
+def test_rollout_engine_never_changes_how_the_evaluated_trajectory_is_optimized(setup) -> None:
+    """With identical arms the choice can't matter, so a different rollout simulator must leave the
+    evaluated trajectory equal to the static run."""
+    eng, tasks = setup
+    cheap = Engine(eng.pfn, candidates=CandidateConfig(n_sobol=32, n_local=2))
+    static = run_static(eng, tasks, "ei", BUDGET, "cpu")
+    ctrl = run_controller(eng, tasks, ["ei", "ei"], "ei", BUDGET, 2, "privileged", "cpu", rollout_engine=cheap)
+    torch.testing.assert_close(ctrl["F"], static["F"])

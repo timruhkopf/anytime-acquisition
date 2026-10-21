@@ -1,0 +1,27 @@
+seed: 0
+task.T_per_d: 10
+task.alpha: alpha_pes_large
+task.arms: '["ucb0.995", "ucb0.999", "pi", "pi0.001"]'
+task.base: ei
+task.candidates.local_sigmas: '[0.01, 0.05, 0.2]'
+task.candidates.n_local: 64
+task.candidates.n_sobol: 1024
+task.chunk: 512
+task.device: cuda
+task.eps: 0.0001
+task.method: static
+task.n_init_per_d: 2
+task.n_rollouts: 8
+task.n_tasks: 200
+task.name: bo
+task.null_k: 6
+task.null_reference: false
+task.pfn: pfn_large
+task.random_search: false
+task.segment_per_d: 2
+task.split: 0
+task.task_draw.n_dense: 16384
+task.task_draw.n_refine: 16
+task.task_draw.refine_steps: 200
+task.task_offset: 0
+task.tf32: false

@@ -36,7 +36,7 @@ PER_FUNCTION = (
 
 
 def task_seed(split: int, d: int, i: int) -> int:
-    """Disjoint seed ranges per split (0: tuning, 1: evaluation, 2: readout train, ...) and d."""
+    """Disjoint seed ranges per split (0: tuning, 1: evaluation, 2: pilot, 3+: readout data) and d."""
     return split * 10_000_019 + d * 100_003 + i
 
 

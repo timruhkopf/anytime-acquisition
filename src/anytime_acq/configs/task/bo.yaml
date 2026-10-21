@@ -1,0 +1,27 @@
+# BO with the frozen PFN on BNN-prior tasks (tasks/bo.py).
+name: bo
+d: 2
+split: 0              # task seed range (bo/tasks.py::task_seed): 0 tuning, 1 evaluation, 2 pilot
+n_tasks: 100
+task_offset: 0
+method: static        # static | privileged | belief | equal_arms (null control)
+arms: [ei]            # static: arms to run; controllers: the K arms, base first
+base: ei              # controller base arm (rollout continuation, tie winner)
+arms_by_d: null       # {d: [...]} overrides arms for that d
+base_by_d: null       # {d: arm} overrides base for that d
+random_search: true   # static: also run random search
+null_reference: false # static: also run base@0 (the equal_arms controller's static counterpart)
+n_rollouts: 8         # R per arm and decision
+null_k: 6             # equal_arms controller: K copies base@0..base@{K-1}
+n_init_per_d: 2       # n_init = 2d (shared scrambled Sobol)
+T_per_d: 10           # T = 10d BO steps: context <= 12d <= 72, within pfn_large's n <= 100
+segment_per_d: 2      # one controller decision every 2d steps (5 decisions)
+eps: 1.0e-4           # log10(regret + eps); y is on the ECDF scale [0, 1]
+pfn: pfn_large
+alpha: alpha_pes_large  # for the `es` arm
+candidates: {n_sobol: 1024, n_local: 64, local_sigmas: [0.01, 0.05, 0.2]}
+rollout_candidates: null  # controllers: a cheaper candidate set for rollouts only (null = the same)
+tf32: false           # TF32 would be 1.6x faster but flips ~7% of near-tie choices: chaos in paired comparisons
+device: cuda
+chunk: 512            # lanes per PFN call (memory only)
+task_draw: {n_dense: 16384, n_refine: 16, refine_steps: 200}

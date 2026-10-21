@@ -118,8 +118,11 @@ def run_controller(
     n_rollouts: int,
     mode: str,
     device: str | torch.device,
+    rollout_engine: Engine | None = None,
 ) -> dict[str, torch.Tensor]:
-    """The rollout controller on every task (evaluated trajectory = replicate 0).
+    """The rollout controller on every task (evaluated trajectory = replicate 0). `rollout_engine` (e.g.
+    fewer candidates) runs the rollouts only: a cheaper simulator changes the controller's choices, never
+    how the evaluated trajectory is optimized.
     -> {"X", "F": as run_static, "choice": [B, n_decisions] arm index, "values": [B, n_decisions, K]}."""
     B, K, R = tasks.B, len(arms), n_rollouts
     X = initial_design(tasks, budget.n_init).to(device)
@@ -141,7 +144,8 @@ def run_controller(
         def arm_at(t: int, t_seg: int = t_seg, lanes: list[str] = arm_of_lane, n: int = Lr) -> list[str]:
             return lanes if t < t_seg else [base] * n
 
-        _, Yr, Fr2 = simulate(engine, tasks, Xr, Fr.clone(), Fr, rows_r, rep_r, arm_at, t0, budget.T, mode)
+        sim = rollout_engine or engine
+        _, Yr, Fr2 = simulate(sim, tasks, Xr, Fr.clone(), Fr, rows_r, rep_r, arm_at, t0, budget.T, mode)
         v = (Fr2 if mode == "privileged" else Yr).min(1).values.reshape(B, K, R).mean(-1)  # [B, K]
         c = v.argmin(1)  # ties -> the earlier arm (put the base first)
         choices.append(c)
