@@ -5,3 +5,5 @@ Session diary: [track_record.md](track_record.md) · backlog: GitHub issues labe
 
 | Entry | Experiment | Decisions |
 |---|---|---|
+| [2026-10-21_static-tune](entries/2026-10-21_static-tune.md) | `static_tune` | pilot `pilot_20261021-150441`: **GO**<br>pilot `pilot_20261021-151907`: **GO** |
+| [2026-10-21_switching](entries/2026-10-21_switching.md) | `switching` | — |

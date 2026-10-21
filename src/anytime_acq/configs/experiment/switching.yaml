@@ -10,9 +10,10 @@ task:
   split: 2
   n_tasks: 48
   null_reference: true
-  # PROVISIONAL until static_tune is decided (then set from its selection rule and committed)
-  base_by_d: {2: ei, 4: ei, 6: ei}
+  rollout_candidates: {n_sobol: 512, n_local: 32, local_sigmas: [0.01, 0.05, 0.2]}  # rollouts only
+  # from static_tune (notebook 01, selection rule; sweeps pilot_20261021-150441 + -151907)
+  base_by_d: {2: mes, 4: ucb0.995, 6: ucb0.995}
   arms_by_d:
-    2: [ei, pi0.05, ucb0.9, mes, es, mean]
-    4: [ei, pi0.05, ucb0.9, mes, es, mean]
-    6: [ei, pi0.05, ucb0.9, mes, es, mean]
+    2: [mes, ei, pi0.01, ucb0.99, es, mean]
+    4: [ucb0.995, ei, pi0.01, mes, es, mean]
+    6: [ucb0.995, ei, pi0.01, mes, es, mean]

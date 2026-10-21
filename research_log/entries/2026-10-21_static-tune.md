@@ -1,6 +1,22 @@
 ---
 experiment: static_tune
-sweeps: []
+sweeps:
+- id: pilot_20261021-150441
+  stage: pilot
+  commit: f23437027b1a
+  decision: GO
+  reason: selection run complete; B* = mes/ucb0.99/ucb0.99 on the pre-registered grid,
+    superseded by the extension (log §4)
+  members: 3/3 done
+  decided: '2026-10-21'
+- id: pilot_20261021-151907
+  stage: pilot
+  commit: f23437027b1a
+  decision: GO
+  reason: 'grid extension: B* = mes/ucb0.995/ucb0.995 (d=2/4/6); portfolio in notebook
+    01'
+  members: 3/3 done
+  decided: '2026-10-21'
 ---
 # Which static acquisition arms are competitive with pfn_large, per d? (selects the switching portfolio)
 
