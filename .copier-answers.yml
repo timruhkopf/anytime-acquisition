@@ -1,0 +1,18 @@
+# Changes here will be overwritten by Copier; do NOT edit manually
+_commit: v0.4.0
+_src_path: /home/ruhkopf/PycharmProjects/research-template
+author: Tim Ruhkopf
+compute:
+- remote
+cuda_extra: cu126
+description: 'Amortized acquisition control for Bayesian optimization: does switching
+    between acquisition functions, conditioned on a frozen PFN''s in-context belief,
+    pay off, and how much could a policy amortized over the prior gain?'
+email: timruhkopf@googlemail.com
+github_user: timruhkopf
+mlflow: true
+optuna: false
+package_name: anytime_acq
+project_name: anytime-acquisition
+python: '3.12'
+training: false

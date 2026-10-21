@@ -1,0 +1,8 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "anytime-acquisition"
+authors:
+  - name: "Tim Ruhkopf"
+    email: "timruhkopf@googlemail.com"
+url: "https://github.com/timruhkopf/anytime-acquisition"
+license: MIT
