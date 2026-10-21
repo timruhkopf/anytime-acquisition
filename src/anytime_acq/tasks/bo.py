@@ -38,6 +38,11 @@ def per_d(t: DictConfig, key: str) -> object:
     return by_d[t.d] if by_d is not None and t.d in by_d else t[key]
 
 
+def _candidates(c: DictConfig) -> CandidateConfig:
+    d = OmegaConf.to_container(c)
+    return CandidateConfig(d["n_sobol"], d["n_local"], tuple(d["local_sigmas"]))
+
+
 def budget_for(t: DictConfig) -> Budget:
     return Budget(n_init=t.n_init_per_d * t.d, T=t.T_per_d * t.d, segment=t.segment_per_d * t.d)
 
@@ -92,9 +97,12 @@ def bo(cfg: DictConfig, run: Run) -> float:
     pfn, _ = load(t.pfn)
     needs_alpha = any(a.split("@")[0] == "es" for a in [*arms, base or ""])
     alpha = load(t.alpha)[0].to(dev).eval() if needs_alpha else None
-    cand = OmegaConf.to_container(t.candidates)
-    cand["local_sigmas"] = tuple(cand["local_sigmas"])
-    engine = Engine(pfn.to(dev).eval(), alpha, CandidateConfig(**cand), base_seed=cfg.seed, chunk=t.chunk)
+    engine = Engine(pfn.to(dev).eval(), alpha, _candidates(t.candidates), base_seed=cfg.seed, chunk=t.chunk)
+    rollout_engine = (
+        None
+        if t.rollout_candidates is None
+        else Engine(engine.pfn, alpha, _candidates(t.rollout_candidates), base_seed=cfg.seed, chunk=t.chunk)
+    )
 
     tables, Fs = [], {}
     if t.method == "static":
@@ -115,7 +123,7 @@ def bo(cfg: DictConfig, run: Run) -> float:
                 raise ValueError(f"put the base arm first (ties go to it): arms={arms}, base={base}")
             base_arm, mode = base, t.method
         t0 = time.time()
-        out = run_controller(engine, tasks, arms, base_arm, budget, t.n_rollouts, mode, dev)
+        out = run_controller(engine, tasks, arms, base_arm, budget, t.n_rollouts, mode, dev, rollout_engine)
         run.log_summary(**{f"{M.TIME_PREFIX}controller_s": time.time() - t0})
         label = f"ctrl:{t.method}"
         Fs[label] = out["F"]

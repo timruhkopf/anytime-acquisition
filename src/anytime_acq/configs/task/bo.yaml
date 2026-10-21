@@ -20,6 +20,7 @@ eps: 1.0e-4           # log10(regret + eps); y is on the ECDF scale [0, 1]
 pfn: pfn_large
 alpha: alpha_pes_large  # for the `es` arm
 candidates: {n_sobol: 1024, n_local: 64, local_sigmas: [0.01, 0.05, 0.2]}
+rollout_candidates: null  # controllers: a cheaper candidate set for rollouts only (null = the same)
 tf32: false           # TF32 would be 1.6x faster but flips ~7% of near-tie choices: chaos in paired comparisons
 device: cuda
 chunk: 512            # lanes per PFN call (memory only)

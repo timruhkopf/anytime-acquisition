@@ -93,17 +93,22 @@ def _family(arm: str) -> str:
 
 
 def switching_verdict(
-    belief: Sequence[dict[str, object]], privileged: Sequence[dict[str, object]], null: Sequence[dict[str, object]]
+    belief: Sequence[dict[str, object]],
+    privileged: Sequence[dict[str, object]],
+    null: Sequence[dict[str, object]],
+    worthwhile: float = 0.05,
+    ruled_out: float = 0.10,
 ) -> str:
     """The pre-registered decision rule (notebook 02); each argument holds one paired_gain per d.
 
-    INVALID if a null CI excludes 0. GO if the belief controller's gain over B* is >= 5% with its CI
-    above 0 at >= 2 of the d. NO-GO if the privileged controller's gain (the upper bound) is < 5% at >= 2
-    of the d. Otherwise INCONCLUSIVE."""
+    INVALID if a null CI excludes 0. GO if the belief controller's gain over B* is >= `worthwhile` with
+    its CI above 0 at >= 2 of the d. NO-GO if the privileged controller's (the reference with task
+    knowledge) CI upper bound is below `ruled_out` at >= 2 of the d: even with task knowledge no gain of
+    that size is plausible. Otherwise INCONCLUSIVE (e.g. too imprecise to rule anything out)."""
     if any(n["gain_lo"] > 0 or n["gain_hi"] < 0 for n in null):
         return "INVALID"
-    if sum(b["gain"] >= 0.05 and b["gain_lo"] > 0 for b in belief) >= 2:
+    if sum(b["gain"] >= worthwhile and b["gain_lo"] > 0 for b in belief) >= 2:
         return "GO"
-    if sum(p["gain"] < 0.05 for p in privileged) >= 2:
+    if sum(p["gain_hi"] < ruled_out for p in privileged) >= 2:
         return "NO-GO"
     return "INCONCLUSIVE"

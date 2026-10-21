@@ -73,6 +73,8 @@ def test_switching_verdict() -> None:
     ok_null = [_g(0.0, -0.02, 0.02)] * 3
     assert switching_verdict([_g(0.08, 0.02, 0.14)] * 2 + [_g(0, -1, 1)], [_g(0.2, 0.1, 0.3)] * 3, ok_null) == "GO"
     assert switching_verdict([_g(0.01, -0.02, 0.04)] * 3, [_g(0.03, 0.0, 0.06)] * 3, ok_null) == "NO-GO"
+    # a small point estimate with a wide CI rules nothing out
+    assert switching_verdict([_g(0.01, -0.1, 0.1)] * 3, [_g(0.03, -0.1, 0.15)] * 3, ok_null) == "INCONCLUSIVE"
     assert switching_verdict([_g(0.04, 0.0, 0.08)] * 3, [_g(0.2, 0.1, 0.3)] * 3, ok_null) == "INCONCLUSIVE"
     bad_null = [_g(0.05, 0.01, 0.09), *ok_null[:2]]
     assert switching_verdict([_g(0.08, 0.02, 0.14)] * 3, [_g(0.2, 0.1, 0.3)] * 3, bad_null) == "INVALID"
