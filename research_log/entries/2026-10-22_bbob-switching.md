@@ -1,6 +1,14 @@
 ---
 experiment: bbob_switching
-sweeps: []
+sweeps:
+- id: pilot_20261022-144551
+  stage: pilot
+  commit: 135eb56e9d71
+  decision: GO
+  reason: 'Selection done per the pre-registered rule (4/4 DONE, 48 tasks per surrogate
+    and d): B* = ucb0.9 (GP, d=2,5), ucb0.99 (PFN, d=2,5)'
+  members: 4/4 done
+  decided: '2026-10-22'
 ---
 # Luck-corrected switching headroom on BBOB with GP and PFN surrogates
 
