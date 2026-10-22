@@ -26,7 +26,7 @@ from dataclasses import dataclass
 import torch
 
 from .engine import Engine
-from .tasks import Tasks
+from .tasks import TaskSet
 
 
 @dataclass
@@ -40,7 +40,7 @@ class Budget:
         return -(-self.T // self.segment)
 
 
-def initial_design(tasks: Tasks, n_init: int) -> torch.Tensor:
+def initial_design(tasks: TaskSet, n_init: int) -> torch.Tensor:
     """[B, n_init, d]: the first n_init points of a scrambled Sobol sequence, shifted per task (CRN for
     every method on a task)."""
     d = tasks.d
@@ -64,7 +64,7 @@ def sample_bar(bd: torch.nn.Module, logits: torch.Tensor, u: torch.Tensor) -> to
 
 def simulate(
     engine: Engine,
-    tasks: Tasks,
+    tasks: TaskSet,
     X: torch.Tensor,
     Y: torch.Tensor,
     F: torch.Tensor,
@@ -87,6 +87,7 @@ def simulate(
             from . import nuisance
 
             u = nuisance.stream(engine.base_seed, "fantasy", t, reps, rows, (), tasks.B, False, X.device)
+            assert engine.pfn is not None, "belief rollouts sample from the PFN's predictive"
             y = sample_bar(engine.pfn.bar_dist, out["logits"], u)
             f = y
         else:
@@ -98,7 +99,7 @@ def simulate(
 
 
 def run_static(
-    engine: Engine, tasks: Tasks, arm: str, budget: Budget, device: str | torch.device
+    engine: Engine, tasks: TaskSet, arm: str, budget: Budget, device: str | torch.device
 ) -> dict[str, torch.Tensor]:
     """Every task with one arm, replicate 0. -> {"X": [B, n, d], "F": [B, n]} (n = n_init + T)."""
     X = initial_design(tasks, budget.n_init).to(device)
@@ -111,7 +112,7 @@ def run_static(
 
 def run_controller(
     engine: Engine,
-    tasks: Tasks,
+    tasks: TaskSet,
     arms: list[str],
     base: str,
     budget: Budget,

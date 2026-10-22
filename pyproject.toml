@@ -15,6 +15,7 @@ dependencies = [
     "jaxtyping>=0.2.36",
     "mlflow>=3.1",
     "pfn-repro",
+    "ioh[cpu]>=0.3.22",
 ]
 
 # torch is NOT a plain dependency: the CPU vs CUDA build is a per-machine choice. ALWAYS pass one extra
