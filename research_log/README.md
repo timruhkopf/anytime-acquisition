@@ -7,4 +7,4 @@ Session diary: [track_record.md](track_record.md) · backlog: GitHub issues labe
 |---|---|---|
 | [2026-10-21_static-tune](entries/2026-10-21_static-tune.md) | `static_tune` | pilot `pilot_20261021-150441`: **GO**<br>pilot `pilot_20261021-151907`: **GO** |
 | [2026-10-21_switching](entries/2026-10-21_switching.md) | `switching` | — |
-| [2026-10-22_bbob-switching](entries/2026-10-22_bbob-switching.md) | `bbob_switching` | pilot `pilot_20261022-144551`: **GO**<br>confirm `confirm_20261022-145708`: **GO** |
+| [2026-10-22_bbob-switching](entries/2026-10-22_bbob-switching.md) | `bbob_switching` | pilot `pilot_20261022-144551`: **GO**<br>confirm `confirm_20261022-145708`: **GO**<br>confirm `confirm_20261023-075829`: **GO** |

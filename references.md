@@ -69,7 +69,33 @@ Annotated literature for this project. BibTeX for every entry lives in `referenc
 - **Relevance:** the classic non-learned switching baseline; motivates the portfolio formulation.
 - **Used in:** README; notebook 02
 
+### [benjamins2023sawei] Benjamins, Raponi, Jankovic, Doerr, Lindauer (2023). *Self-Adjusting Weighted Expected Improvement for Bayesian Optimization*. AutoML 2023 (PMLR 224). arXiv:2306.04262
+- **Status:** read
+- **Claim:** Adapting Weighted EI's exploration weight α during a run, whenever the upper-bound regret (UBR) stalls, ranks among the best of the static acquisitions (EI, PI, LCB), the hand-made schedules and GP-Hedge on 24 noise-free BBOB functions (8D, 3 instances, 10 seeds, SMAC GP).
+- **Relevance:** the closest positive evidence for within-run acquisition adaptation on BBOB. It doesn't control for luck: results are IQM-of-ranks, with no significance tests, no null, no per-function or held-out static oracle, and no numeric gains reported.
+- **Used in:** notebook 04 (bbob_switching); issues #8, pfn-repro#3
+- **Notes:** budget 24 initial + 256 BO evaluations; SMAC's local + random acquisition search.
+
+### [cowenrivers2022hebo] Cowen-Rivers et al. (2022). *HEBO: Pushing the Limits of Sample-Efficient Hyperparameter Optimisation*. JAIR. arXiv:2012.03826
+- **Status:** skimmed
+- **Claim:** An empirical study of BO assumptions: heteroscedastic, non-stationary objectives are common, and a multi-objective acquisition ensemble (Pareto front of EI, PI, UCB) improves queries.
+- **Relevance:** the literature's case that one acquisition is not enough on real tasks; its noise findings motivate #9.
+- **Used in:** notebook 04; issues #7, #9
+
 ## Method building blocks
+
+### [bergna2026decoupled] Bergna, Depeweg, Hernández-Lobato (2026). *Decoupled PFNs: Identifiable Epistemic-Aleatoric Decomposition via Structured Synthetic Priors*. arXiv:2605.06413
+- **Status:** skimmed
+- **Claim:** The epistemic/aleatoric split is not identifiable from the posterior predictive alone. A PFN trained with the generator's noise-free signal and noise level as privileged targets separates the two, and epistemic-only acquisition avoids the failure of total-variance exploration under (heteroscedastic) noise.
+- **Relevance:** method source for the noisy-PFN direction (#9, pfn-repro#3) and for a belief value on the latent f (#6).
+- **Used in:** issues #6, #9; pfn-repro#3
+
+### [nagler2026martingale] Nagler, Rügamer (2026). *Uncertainty Quantification for Prior-Data Fitted Networks using Martingale Posteriors*. ICML 2025. arXiv:2505.11325
+- **Status:** skimmed
+- **Claim:** A PFN's predictive distribution mixes aleatoric and epistemic uncertainty and gives no uncertainty for predictive summaries; martingale-posterior sampling adds it.
+- **Relevance:** background for #9: why the bar distribution's spread is not epistemic uncertainty.
+- **Used in:** issue #9; pfn-repro#3
+
 
 ### [black2024pi0] Black et al. (2024). *π0: A Vision-Language-Action Flow Model for General Robot Control*. arXiv:2410.24164
 - **Status:** read

@@ -34,3 +34,19 @@ Earlier the same day: issues #6–#9 filed; pfn-repro#3 filed with the noise rat
 - GP confirm snapshot `results/bbob_switching/confirm_20261022-145708`, decided GO. Privileged gain over B\*
   (n = 192/d): +58.6% [+45.9, +68.8] at d = 2, +18.8% [+3.1, +31.9] at d = 5. Null: −5.0% [−43.5, +22.0] and
   −5.7% [−20.9, +7.7].
+
+### 2026-10-23 09:30 — PFN confirm DONE and decided GO; notebook 04 executed (deliverables)
+
+- PFN confirm `confirm_20261023-075829`: 6/6 DONE at 09:05 (queue.log). Snapshotted and decided GO.
+  Privileged +65.6% [+51.3, +76.1] (d = 2) and +29.2% [+17.8, +38.9] (d = 5); null −1.4% and −1.9%, CIs include 0.
+- Notebook 04 executed against the three snapshots (`just notebook`). Verified: every cell ran without error; the two
+  figures were checked against the tables; every number in the Observations was re-read from the cell outputs.
+- **Deliverables:**
+  - issues #6–#9, pfn-repro#3 (with the noise rationale);
+  - notebook 04, log entry `2026-10-22_bbob-switching.md` §1–§2, a README status row;
+  - references: SAWEI, HEBO, decoupled PFNs, martingale posteriors.
+- **Open questions:**
+  - Can a belief controller (no task knowledge) recover part of the headroom (#6)?
+  - Does the headroom survive at a larger budget (SAWEI uses 35d) and with noise (#9)?
+  - The PFN at d = 2: the top arm doesn't transfer from split 0 to split 1 (ucb0.9 beats the selected ucb0.99 by
+    28%), so B\* selection on 48 tasks is noisy.
