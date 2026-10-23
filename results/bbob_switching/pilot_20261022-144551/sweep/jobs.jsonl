@@ -1,0 +1,4 @@
+{"member": 0, "overrides": ["experiment=bbob_switching", "task.split=0", "task.method=static", "task.surrogate=gp", "task.d=2"]}
+{"member": 1, "overrides": ["experiment=bbob_switching", "task.split=0", "task.method=static", "task.surrogate=gp", "task.d=5"]}
+{"member": 2, "overrides": ["experiment=bbob_switching", "task.split=0", "task.method=static", "task.surrogate=pfn", "task.d=2"]}
+{"member": 3, "overrides": ["experiment=bbob_switching", "task.split=0", "task.method=static", "task.surrogate=pfn", "task.d=5"]}

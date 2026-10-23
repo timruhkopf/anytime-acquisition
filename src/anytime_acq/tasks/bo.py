@@ -11,6 +11,10 @@ One member = one d and one method:
 Tables: `best` (task, seed, arm, t, best_f: best evaluated f after the initial design and each step),
 `fstar` (the member's f* estimate per task; analysis lowers it across members), and for controllers
 `decisions` (task, decision, chosen arm, mean rollout value per arm).
+
+Off the prior (`task.benchmark=bbob`, experimental): BBOB tasks with the PFN on rank-transformed y
+(`task.surrogate=pfn`) or a batched GP (`task.surrogate=gp`); the belief controller is not defined there
+(its fantasies live on the transformed scale), and BBOB tasks also log a `tasks` table (fid, instance, rep).
 """
 
 import time
@@ -23,8 +27,10 @@ from pfn_repro.checkpoints import load
 
 from ..bo.engine import CandidateConfig, Engine
 from ..bo.runner import Budget, initial_design, run_controller, run_static
-from ..bo.tasks import Tasks, draw_tasks, task_seed
+from ..bo.tasks import TaskSet, draw_tasks, task_seed
 from ..evaluation import metric_names as M
+from ..experimental.bbob import bbob_tasks, task_list
+from ..experimental.surrogates import GPEngine, RankPFNEngine
 from ..tracking.sink import Run
 from ..utils.seeding import seed_everything
 
@@ -47,7 +53,7 @@ def budget_for(t: DictConfig) -> Budget:
     return Budget(n_init=t.n_init_per_d * t.d, T=t.T_per_d * t.d, segment=t.segment_per_d * t.d)
 
 
-def random_search(tasks: Tasks, budget: Budget, device: str) -> torch.Tensor:
+def random_search(tasks: TaskSet, budget: Budget, device: str) -> torch.Tensor:
     """F [B, n_init + T]: the shared initial design, then uniform points (seeded by the task seed)."""
     X0 = initial_design(tasks, budget.n_init)
     U = torch.stack(
@@ -59,7 +65,7 @@ def random_search(tasks: Tasks, budget: Budget, device: str) -> torch.Tensor:
     return tasks.f(torch.cat([X0, U], 1).to(device))
 
 
-def best_table(tasks: Tasks, arm: str, F: torch.Tensor, n_init: int) -> pd.DataFrame:
+def best_table(tasks: TaskSet, arm: str, F: torch.Tensor, n_init: int) -> pd.DataFrame:
     best = F.cummin(1).values[:, n_init - 1 :].cpu().numpy()
     B, n_t = best.shape
     return pd.DataFrame(
@@ -90,18 +96,35 @@ def bo(cfg: DictConfig, run: Run) -> float:
     base = str(per_d(t, "base"))
 
     t0 = time.time()
-    seeds = [task_seed(t.split, d, t.task_offset + i) for i in range(t.n_tasks)]
-    tasks = draw_tasks(d, seeds, **OmegaConf.to_container(t.task_draw)).to(dev)
+    if t.benchmark == "prior":
+        seeds = [task_seed(t.split, d, t.task_offset + i) for i in range(t.n_tasks)]
+        tasks = draw_tasks(d, seeds, **OmegaConf.to_container(t.task_draw)).to(dev)
+    elif t.benchmark == "bbob":
+        if t.method == "belief":
+            raise ValueError("the belief controller is not defined off the prior (fantasies on the rank scale)")
+        ids = task_list(list(t.bbob.fids), list(t.bbob.instances_by_split[t.split]), t.bbob.reps)
+        seeds = [task_seed(t.split, d, t.task_offset + i) for i in range(len(ids))]
+        tasks = bbob_tasks(d, seeds, ids).to(dev)
+        fid, inst, rep = zip(*ids, strict=True)
+        ids_table = {"task": np.arange(len(ids)), "seed": seeds, "fid": fid, "instance": inst, "rep": rep}
+        run.log_table("tasks", pd.DataFrame(ids_table))
+    else:
+        raise ValueError(f"task.benchmark must be prior or bbob, got {t.benchmark}")
     run.log_summary(**{M.TIME_TASKS_S: time.time() - t0})
 
-    pfn, _ = load(t.pfn)
     needs_alpha = any(a.split("@")[0] == "es" for a in [*arms, base or ""])
     alpha = load(t.alpha)[0].to(dev).eval() if needs_alpha else None
-    engine = Engine(pfn.to(dev).eval(), alpha, _candidates(t.candidates), base_seed=cfg.seed, chunk=t.chunk)
+    if t.surrogate == "gp":
+        cls, pfn, extra = GPEngine, None, {"fit_iters": t.gp_fit_iters}
+    elif t.surrogate == "pfn":
+        cls, pfn, extra = (Engine if t.benchmark == "prior" else RankPFNEngine), load(t.pfn)[0].to(dev).eval(), {}
+    else:
+        raise ValueError(f"task.surrogate must be pfn or gp, got {t.surrogate}")
+    engine = cls(pfn, alpha, _candidates(t.candidates), base_seed=cfg.seed, chunk=t.chunk, **extra)
     rollout_engine = (
         None
         if t.rollout_candidates is None
-        else Engine(engine.pfn, alpha, _candidates(t.rollout_candidates), base_seed=cfg.seed, chunk=t.chunk)
+        else cls(pfn, alpha, _candidates(t.rollout_candidates), base_seed=cfg.seed, chunk=t.chunk, **extra)
     )
 
     tables, Fs = [], {}

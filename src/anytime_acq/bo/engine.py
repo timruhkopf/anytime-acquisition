@@ -30,7 +30,7 @@ class CandidateConfig:
 
 @dataclass
 class Engine:
-    pfn: torch.nn.Module
+    pfn: torch.nn.Module | None  # None for surrogates that override `score` (experimental/surrogates.py)
     alpha: torch.nn.Module | None = None
     candidates: CandidateConfig = field(default_factory=CandidateConfig)
     base_seed: int = 0
@@ -57,6 +57,27 @@ class Engine:
         inc = X[torch.arange(L, device=dev), Y.argmin(1)][:, None]
         return torch.cat([sob, (inc + sig * z).clamp(0, 1)], 1)
 
+    def score(
+        self, name: str, X: torch.Tensor, Y: torch.Tensor, C: torch.Tensor
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor | None]:
+        """Arm `name` on candidates C [M, P, d] given the context (X, Y). -> (score [M, P], higher = better;
+        tie key [M, P], lower wins ties (the posterior mean); bar-distribution logits [M, P, nb])."""
+        assert self.pfn is not None, "Engine.score needs a PFN"
+        nf = torch.full((len(X),), X.shape[-1], device=X.device, dtype=torch.long)
+        kv = self.pfn.context_kv(X, Y, n_features=nf)
+        lg = self.pfn.logits_from_context_kv(kv, C, n_features=nf).float()
+        bd = self.pfn.bar_dist
+        inc = Y.min(1).values
+        base, _ = parse_arm(name)
+        if base == "es":
+            assert self.alpha is not None, "arm 'es' needs the alpha-PFN"
+            kva = self.alpha.context_kv(X, Y, n_features=nf)
+            score = self.alpha.bar_dist.mean(self.alpha.logits_from_context_kv(kva, C, n_features=nf).float())
+        else:
+            fs = fstar_quantiles(bd, lg, inc) if base == "mes" else None
+            score = arm_scores(name, bd, lg, inc, self.ucb_quantile, mes_fs=fs)
+        return score, bd.mean(lg), lg
+
     @torch.no_grad()
     def propose(
         self,
@@ -75,26 +96,14 @@ class Engine:
         cand = self.candidate_set(X, Y, rows, reps, step, n_tasks)
         P = cand.shape[1]
         out_x = torch.empty(L, d, device=dev)
-        out_lg = torch.empty(L, self.pfn.bar_dist.num_bars, device=dev) if return_logits else None
+        assert self.pfn is not None or not return_logits, "logits need a PFN"
+        out_lg = torch.empty(L, self.pfn.bar_dist.num_bars, device=dev) if self.pfn and return_logits else None
         arm_idx = {a: [i for i, b in enumerate(arms) if b == a] for a in dict.fromkeys(arms)}
         for a, lanes_a in arm_idx.items():
             for s in range(0, len(lanes_a), self.chunk):
                 li = torch.tensor(lanes_a[s : s + self.chunk], device=dev)
                 Xa, Ya, Ca = X[li], Y[li], cand[li]
-                nf = torch.full((len(li),), d, device=dev, dtype=torch.long)
-                kv = self.pfn.context_kv(Xa, Ya, n_features=nf)
-                lg = self.pfn.logits_from_context_kv(kv, Ca, n_features=nf).float()
-                bd = self.pfn.bar_dist
-                inc = Ya.min(1).values
-                name = a.split("@")[0]
-                base, _ = parse_arm(name)
-                if base == "es":
-                    assert self.alpha is not None, "arm 'es' needs the alpha-PFN"
-                    kva = self.alpha.context_kv(Xa, Ya, n_features=nf)
-                    score = self.alpha.bar_dist.mean(self.alpha.logits_from_context_kv(kva, Ca, n_features=nf).float())
-                else:
-                    fs = fstar_quantiles(bd, lg, inc) if base == "mes" else None
-                    score = arm_scores(name, bd, lg, inc, self.ucb_quantile, mes_fs=fs)
+                score, tie_key, lg = self.score(a.split("@")[0], Xa, Ya, Ca)
                 valid = torch.cdist(Ca, Xa).min(-1).values > 1e-7
                 if "@" in a:  # equal-arms null: a k-specific random half of the candidates
                     k = int(a.split("@")[1])
@@ -106,9 +115,9 @@ class Engine:
                 sc = score.masked_fill(~valid, neg)
                 best = sc.max(-1, keepdim=True).values
                 tied = valid & (sc >= best - 1e-7 * best.abs().clamp(min=1e-12))
-                j = bd.mean(lg).masked_fill(~tied, float("inf")).argmin(-1)
+                j = tie_key.masked_fill(~tied, float("inf")).argmin(-1)
                 r = torch.arange(len(li), device=dev)
                 out_x[li] = Ca[r, j]
-                if return_logits:
+                if out_lg is not None and lg is not None:
                     out_lg[li] = lg[r, j]
         return {"x": out_x, "logits": out_lg} if return_logits else {"x": out_x}

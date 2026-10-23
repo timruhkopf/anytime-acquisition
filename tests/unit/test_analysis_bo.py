@@ -78,3 +78,16 @@ def test_switching_verdict() -> None:
     assert switching_verdict([_g(0.04, 0.0, 0.08)] * 3, [_g(0.2, 0.1, 0.3)] * 3, ok_null) == "INCONCLUSIVE"
     bad_null = [_g(0.05, 0.01, 0.09), *ok_null[:2]]
     assert switching_verdict([_g(0.08, 0.02, 0.14)] * 3, [_g(0.2, 0.1, 0.3)] * 3, bad_null) == "INVALID"
+
+
+def test_headroom_verdict() -> None:
+    from anytime_acq.analysis.bo import headroom_verdict
+
+    def g(gain: float, lo: float, hi: float) -> dict[str, object]:
+        return {"gain": gain, "gain_lo": lo, "gain_hi": hi}
+
+    null = [g(0.0, -0.1, 0.1)] * 2
+    assert headroom_verdict([g(0.2, 0.05, 0.3), g(0.01, -0.1, 0.1)], null) == "GO"
+    assert headroom_verdict([g(0.2, 0.05, 0.3), g(-0.01, -0.1, 0.1)], null) == "INCONCLUSIVE"
+    assert headroom_verdict([g(0.02, -0.05, 0.08), g(0.0, -0.05, 0.09)], null) == "NO-GO"
+    assert headroom_verdict([g(0.2, 0.05, 0.3)] * 2, [g(0.1, 0.01, 0.2), g(0, -1, 1)]) == "INVALID"
