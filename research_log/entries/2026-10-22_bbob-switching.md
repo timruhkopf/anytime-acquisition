@@ -9,6 +9,14 @@ sweeps:
     and d): B* = ucb0.9 (GP, d=2,5), ucb0.99 (PFN, d=2,5)'
   members: 4/4 done
   decided: '2026-10-22'
+- id: confirm_20261022-145708
+  stage: confirm
+  commit: 63900a28b7bf
+  decision: GO
+  reason: 'GP: privileged gain over B*=ucb0.9 +58.6% [+45.9,+68.8] (d=2), +18.8% [+3.1,+31.9]
+    (d=5), n=192/d; null -5.0% [-43.5,+22.0], -5.7% [-20.9,+7.7] (CI incl. 0); headroom_verdict=GO'
+  members: 6/6 done
+  decided: '2026-10-23'
 ---
 # Luck-corrected switching headroom on BBOB with GP and PFN surrogates
 
