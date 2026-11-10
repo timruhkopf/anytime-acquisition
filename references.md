@@ -69,6 +69,23 @@ Annotated literature for this project. BibTeX for every entry lives in `referenc
   and few-shot adaptation answer MetaBO's overfitting problem, a risk our prior-amortized policy shares.
 - **Used in:** background for the learned selector (problem statement, Stage 1+).
 
+### [song2024reinforcedincontextblackboxoptimization] Song, Gao, Xue, Wu, Li, Hao, Zhang, Qian (2024). *Reinforced In-Context Black-Box Optimization* (RIBBO). arXiv:2402.17423
+- **Status:** abstract read (2026-11-10); venue to-verify (arXiv lists none).
+- **Claim:** a causal sequence model (decision-transformer style) is trained offline on optimization
+  histories from several behavior algorithms and tasks. The histories are augmented with *regret-to-go*
+  tokens (cumulative regret over the rest of the history). Conditioning on a desired regret-to-go makes it
+  generate query points directly, with good results on BBO benchmarks, HPO and robot control.
+- **Relevance:** closest related work as a *learned, context-dependent* acquisition, since it decides from
+  the current history at every step. We differ on every other axis:
+  - it imitates offline behavior logs (it is bounded by those algorithms' data); we amortize over the prior;
+  - it generates x end to end, with no belief model; we read a frozen PFN's posterior and choose among, or
+    act on top of, acquisition options;
+  - it queries by return (regret-to-go).
+- **Notes:** we consider return-conditioned querying unsound for this purpose. The desired regret-to-go has
+  to be chosen by the user, and regret needs f* (unknown at deployment). Return conditioning in decision
+  transformers does not reliably extrapolate beyond the returns in the behavior data, and on stochastic
+  tasks it conflates luck with skill. Cite it as positioning, not as a baseline we adopt.
+
 ### [chen2022optformer] Chen, Song, Lee, Wang, Zhang, Dohan, Kawakami, Kochanski, Doucet, Ranzato, Perel, de Freitas (2022). *Towards Learning Universal Hyperparameter Optimizers with Transformers*. NeurIPS 2022. arXiv:2205.13320
 - **Status:** skimmed
 - **Claim:** A transformer trained on optimization traces imitates and can improve on the HPO algorithms that produced them.
