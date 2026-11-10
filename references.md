@@ -93,10 +93,12 @@ Annotated literature for this project. BibTeX for every entry lives in `referenc
 - **Claim:** a random-forest regressor on exploratory landscape analysis (ELA) features computed from the
   initial design is enough to recommend, per run, an acquisition function (or AF schedule) that beats every
   static choice on BBOB (COCO).
-- **Relevance:** closest related work for switching on BBOB (#8/#10). It is per-run algorithm selection
-  from hand-crafted landscape features of the initial design. We condition on the frozen PFN's in-context
-  belief instead and can switch within a run. It is a natural non-PFN baseline: ELA features → AF
-  choice. Same group as `benjamins2023sawei`.
+- **Relevance:** closest related work: a *snapshot* variant of our idea, without RL. They decide once,
+  after the initial design: ELA features of that one snapshot pick which AF variant runs for the rest of
+  the run. Our selector is context-dependent: it re-decides at every step from the frozen PFN's current
+  in-context belief, and is amortized over the prior rather than fitted on hand-crafted features. Natural
+  baseline: ELA on the initial design → static AF choice (our `static` arms selected per task, vs. B*).
+  Same group as `benjamins2023sawei`.
 - **Used in:** background for `bbob_switching` and the learned selector (problem statement, Stage 1+).
 - **Notes:** check the full paper for the AF portfolio, the schedules (static vs switching after a budget
   fraction), the ELA feature set, and which BBOB dimensions and budgets they used before comparing.
