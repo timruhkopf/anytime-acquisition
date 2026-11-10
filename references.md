@@ -67,7 +67,14 @@ Annotated literature for this project. BibTeX for every entry lives in `referenc
 - **Status:** read
 - **Claim:** GP-Hedge: choose among acquisition functions online with a bandit over their past rewards.
 - **Relevance:** the classic non-learned switching baseline; motivates the portfolio formulation.
-- **Used in:** README; notebook 02
+- **Used in:** README; notebook 02; `bo/runner.py::run_hedge` (`task.method=hedge`, issue #11).
+- **Notes:** Algorithm 2 (Hedge, full information): every arm nominates its argmax, a nominee is drawn with
+  p ∝ exp(η g), every arm is rewarded with the *updated* GP's mean at its own nominee, μ_t(x_t^i), and gains
+  accumulate. Maximization in the paper; we use −μ_t. The paper gives no η. Its rewards are raw-scale GP
+  means, so η's effect depends on the objective's scale; ours are on [0, 1] (`Engine.posterior_mean_u`).
+  Portfolios: N=3 {EI ξ=0.01, PI ξ=0.01, GP-UCB δ=0.1 ν=0.2}; N=9 adds ξ ∈ {0.1, 1} for PI/EI and
+  ν ∈ {0.1, 1}. Hedge beat Exp3 and NormalHedge (which collapses to exploitation). Experiments: Branin,
+  Hartman 3/6, 25 runs, gap metric. The UAI version lists the authors as Hoffman, Brochu, de Freitas.
 
 ### [benjamins2023sawei] Benjamins, Raponi, Jankovic, Doerr, Lindauer (2023). *Self-Adjusting Weighted Expected Improvement for Bayesian Optimization*. AutoML 2023 (PMLR 224). arXiv:2306.04262
 - **Status:** read
