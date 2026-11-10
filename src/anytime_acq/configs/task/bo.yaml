@@ -4,7 +4,7 @@ d: 2
 split: 0              # task seed range (bo/tasks.py::task_seed): 0 tuning, 1 evaluation, 2 pilot
 n_tasks: 100
 task_offset: 0
-method: static        # static | privileged | belief | equal_arms (null control)
+method: static        # static | privileged | belief | equal_arms (null control) | hedge (GP-Hedge)
 arms: [ei]            # static: arms to run; controllers: the K arms, base first
 base: ei              # controller base arm (rollout continuation, tie winner)
 arms_by_d: null       # {d: [...]} overrides arms for that d
@@ -13,6 +13,7 @@ random_search: true   # static: also run random search
 null_reference: false # static: also run base@0 (the equal_arms controller's static counterpart)
 n_rollouts: 8         # R per arm and decision
 null_k: 6             # equal_arms controller: K copies base@0..base@{K-1}
+hedge_eta: 1.0        # GP-Hedge learning rate on the [0, 1] reward scale, or "auto" = sqrt(8 ln K / T); the paper gives none
 n_init_per_d: 2       # n_init = 2d (shared scrambled Sobol)
 T_per_d: 10           # T = 10d BO steps: context <= 12d <= 72, within pfn_large's n <= 100
 segment_per_d: 2      # one controller decision every 2d steps (5 decisions)

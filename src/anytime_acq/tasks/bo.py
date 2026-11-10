@@ -6,11 +6,15 @@ One member = one d and one method:
 - `privileged` / `belief`: the rollout controller over `arms` with base arm `base` (bo/runner.py);
 - `equal_arms` (the null control): the privileged controller over K copies of the base arm, each
   restricted to its own random half of the candidates (`base@k`). Its gain over the static `base@0`
-  must be 0 in expectation.
+  must be 0 in expectation;
+- `hedge`: GP-Hedge over `arms` (Brochu, Hoffman & de Freitas 2011; bo/runner.py::run_hedge), learning
+  rate `hedge_eta` (a float or "auto"). With `surrogate=gp` it is the paper's method. Over identical arms
+  it equals the static arm exactly.
 
 Tables: `best` (task, seed, arm, t, best_f: best evaluated f after the initial design and each step),
 `fstar` (the member's f* estimate per task; analysis lowers it across members), and for controllers
-`decisions` (task, decision, chosen arm, mean rollout value per arm).
+`decisions` (task, decision, chosen arm, mean rollout value per arm), for `hedge` the table `hedge` (task,
+step, chosen arm, Hedge's probability and cumulative gain per arm).
 
 Off the prior (`task.benchmark=bbob`, experimental): BBOB tasks with the PFN on rank-transformed y
 (`task.surrogate=pfn`) or a batched GP (`task.surrogate=gp`); the belief controller is not defined there
@@ -26,7 +30,7 @@ from omegaconf import DictConfig, OmegaConf
 from pfn_repro.checkpoints import load
 
 from ..bo.engine import CandidateConfig, Engine
-from ..bo.runner import Budget, initial_design, run_controller, run_static
+from ..bo.runner import Budget, hedge_eta, initial_design, run_controller, run_hedge, run_static
 from ..bo.tasks import TaskSet, draw_tasks, task_seed
 from ..evaluation import metric_names as M
 from ..experimental.bbob import bbob_tasks, task_list
@@ -34,7 +38,8 @@ from ..experimental.surrogates import GPEngine, RankPFNEngine
 from ..tracking.sink import Run
 from ..utils.seeding import seed_everything
 
-METHODS = ("static", "privileged", "belief", "equal_arms")
+METHODS = ("static", "privileged", "belief", "equal_arms", "hedge")
+HEDGE = "hedge"
 RANDOM = "random"
 
 
@@ -137,6 +142,26 @@ def bo(cfg: DictConfig, run: Run) -> float:
             run.log_summary(**{f"{M.TIME_PREFIX}{arm}_s": time.time() - t0})
         if t.random_search:
             Fs[RANDOM] = random_search(tasks, budget, dev)
+    elif t.method == "hedge":
+        eta = hedge_eta(t.hedge_eta, len(arms), budget.T)
+        t0 = time.time()
+        out = run_hedge(engine, tasks, arms, budget, eta, dev)
+        run.log_summary(**{f"{M.TIME_PREFIX}{HEDGE}_s": time.time() - t0, "hedge_eta": eta})
+        Fs[HEDGE] = out["F"]
+        choice, probs, gains = (out[k].cpu().numpy() for k in ("choice", "probs", "gains"))  # [B, T], [B, T, K]
+        B, T = choice.shape
+        tab = pd.DataFrame(
+            {
+                "task": np.repeat(np.arange(B), T),
+                "seed": np.repeat(np.asarray(seeds), T),
+                "step": np.tile(np.arange(T), B),
+                "chosen": np.asarray(arms)[choice.ravel()],
+            }
+        )
+        for k, a in enumerate(arms):
+            tab[f"p/{a}"] = probs[..., k].ravel()
+            tab[f"gain/{a}"] = gains[..., k].ravel()
+        run.log_table(HEDGE, tab)
     else:
         if t.method == "equal_arms":
             arms = [f"{base}@{k}" for k in range(t.null_k)]

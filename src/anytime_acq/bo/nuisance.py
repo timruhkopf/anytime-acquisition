@@ -7,7 +7,7 @@ Replicate 0 is the evaluated trajectory.
 
 import torch
 
-KINDS = {"shift": 1, "perturb": 2, "subset": 3, "fantasy": 4}
+KINDS = {"shift": 1, "perturb": 2, "subset": 3, "fantasy": 4, "hedge": 5}
 
 
 def _seed(base: int, kind: str, step: int, replicate: int) -> int:

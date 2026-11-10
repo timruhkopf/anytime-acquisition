@@ -79,6 +79,13 @@ class Engine:
         return score, bd.mean(lg), lg
 
     @torch.no_grad()
+    def posterior_mean_u(self, X: torch.Tensor, Y: torch.Tensor, C: torch.Tensor) -> torch.Tensor:
+        """Posterior mean of f at C [M, P, d] on a [0, 1] scale -> [M, P]. For the PFN on the prior that is
+        the prior's ECDF scale; surrogates on other scales override it (GP: Phi(mu) of the Gaussian copula).
+        GP-Hedge's rewards (bo/runner.py::run_hedge), so that its eta means the same for every surrogate."""
+        return self.score("mean", X, Y, C)[1]
+
+    @torch.no_grad()
     def propose(
         self,
         X: torch.Tensor,
