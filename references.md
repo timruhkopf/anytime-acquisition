@@ -86,6 +86,26 @@ Annotated literature for this project. BibTeX for every entry lives in `referenc
   transformers does not reliably extrapolate beyond the returns in the behavior data, and on stochastic
   tasks it conflates luck with skill. Cite it as positioning, not as a baseline we adopt.
 
+### [meindl2025zeroshotoptzeroshotpretrainedmodels] Meindl, Tian, Cui, Thost, Hong, Dürholt, Chen, Matusik, Konaković Luković (2025). *ZeroShotOpt: Towards Zero-Shot Pretrained Models for Efficient Black-Box Optimization*. arXiv:2510.03051
+- **Status:** abstract read (2026-11-10); venue to-verify (arXiv lists none).
+- **Claim:** a pretrained model for continuous black-box optimization from 2D to 20D. It is trained by
+  offline RL (a decision-transformer-style sequence model) on optimization trajectories of 12 BO variants
+  run on millions of synthetic GP-sampled functions. It generalizes zero-shot to unseen benchmarks and
+  matches or beats BO and other global optimizers in sample efficiency. Code, dataset and model are open.
+- **Relevance:** closest related work on the *prior-amortization* axis. Like us it is pretrained on draws
+  from a synthetic function prior, not on a task family, and it decides from the current context. In
+  effect it is RIBBO (`song2024reinforcedincontextblackboxoptimization`) trained offline on GP-prior
+  trajectories. Differences:
+  - it imitates and recombines the 12 behavior BO variants (bounded by their trajectories); our policy is
+    trained against the prior itself (privileged / belief rollouts);
+  - it generates x with no explicit belief; we act on a frozen PFN's posterior and a set of acquisition
+    options.
+  Candidate *external baseline*: open weights, a 2–20D range that covers ours (d <= 6), zero-shot.
+- **Notes:** check in the full paper whether it conditions on returns (regret-to-go) like RIBBO and how the
+  target is set at test time (see the critique under RIBBO). Also check its GP prior (kernels, lengthscales,
+  noise), the 12 behavior variants, and the budgets. Its d range matches `pfn_large`'s d <= 6 only at the
+  low end.
+
 ### [chen2022optformer] Chen, Song, Lee, Wang, Zhang, Dohan, Kawakami, Kochanski, Doucet, Ranzato, Perel, de Freitas (2022). *Towards Learning Universal Hyperparameter Optimizers with Transformers*. NeurIPS 2022. arXiv:2205.13320
 - **Status:** skimmed
 - **Claim:** A transformer trained on optimization traces imitates and can improve on the HPO algorithms that produced them.
