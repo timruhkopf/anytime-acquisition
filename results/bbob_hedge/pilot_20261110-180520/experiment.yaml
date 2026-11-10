@@ -1,0 +1,20 @@
+# @package _global_
+# GP-Hedge on BBOB (issue #11 baseline): how much of the switching headroom does an online portfolio recover?
+# Pre-registration: notebooks/05_2026-11-10_bbob_hedge.ipynb. Same tasks, arms, candidates and budget as the
+# bbob_switching confirm sweeps (split 1, 192 tasks per d), so every hedge run pairs task by task with the
+# static arms and the privileged controller there.
+# Sweep: task.surrogate=gp,pfn task.d=2,5 task.hedge_eta=1.0,10.0
+defaults:
+  - override /task: bo
+
+task:
+  benchmark: bbob
+  surrogate: gp
+  split: 1
+  method: hedge
+  arms: [ei, pi0.01, ucb0.9, ucb0.99, mes, mean]
+  base: ei
+  null_reference: false
+  eps: 1.0e-8
+  hedge_eta: 1.0
+  device: cpu

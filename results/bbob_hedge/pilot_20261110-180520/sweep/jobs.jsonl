@@ -1,0 +1,8 @@
+{"member": 0, "overrides": ["experiment=bbob_hedge", "task.surrogate=gp", "task.d=2", "task.hedge_eta=1.0"]}
+{"member": 1, "overrides": ["experiment=bbob_hedge", "task.surrogate=gp", "task.d=2", "task.hedge_eta=10.0"]}
+{"member": 2, "overrides": ["experiment=bbob_hedge", "task.surrogate=gp", "task.d=5", "task.hedge_eta=1.0"]}
+{"member": 3, "overrides": ["experiment=bbob_hedge", "task.surrogate=gp", "task.d=5", "task.hedge_eta=10.0"]}
+{"member": 4, "overrides": ["experiment=bbob_hedge", "task.surrogate=pfn", "task.d=2", "task.hedge_eta=1.0"]}
+{"member": 5, "overrides": ["experiment=bbob_hedge", "task.surrogate=pfn", "task.d=2", "task.hedge_eta=10.0"]}
+{"member": 6, "overrides": ["experiment=bbob_hedge", "task.surrogate=pfn", "task.d=5", "task.hedge_eta=1.0"]}
+{"member": 7, "overrides": ["experiment=bbob_hedge", "task.surrogate=pfn", "task.d=5", "task.hedge_eta=10.0"]}

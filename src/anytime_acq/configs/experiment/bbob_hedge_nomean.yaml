@@ -1,0 +1,11 @@
+# @package _global_
+# Follow-up to bbob_hedge (notebook 05, registered there before launch): the same sweep without the `mean` arm.
+# In bbob_hedge the Hedge reward -mu(nominee) is structurally biased toward `mean` (its nominee is argmin mu):
+# it had the top reward in 46-85% of steps and was chosen in 44-90% of them. Brochu et al.'s portfolio has no
+# pure-exploitation arm. Only the arm set changes; tasks, candidates, budget and eta values are those of bbob_hedge.
+# Sweep: task.surrogate=gp,pfn task.d=2,5 task.hedge_eta=1.0,10.0
+defaults:
+  - bbob_hedge
+
+task:
+  arms: [ei, pi0.01, ucb0.9, ucb0.99, mes]

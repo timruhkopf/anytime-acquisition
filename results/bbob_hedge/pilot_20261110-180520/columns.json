@@ -1,0 +1,1 @@
+{"params": ["task.d", "task.hedge_eta", "task.surrogate"], "metrics": ["final/log10_regret/hedge", "hedge_eta", "time/hedge_s", "time/tasks_s"]}

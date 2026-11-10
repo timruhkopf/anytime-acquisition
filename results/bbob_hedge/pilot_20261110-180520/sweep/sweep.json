@@ -1,0 +1,23 @@
+{
+ "id": "pilot_20261110-180520",
+ "experiment": "bbob_hedge",
+ "stage": "pilot",
+ "kind": "grid",
+ "command": "just sweep detached pilot experiment=bbob_hedge task.surrogate=gp,pfn task.d=2,5 task.hedge_eta=1.0,10.0",
+ "overrides": [
+  "experiment=bbob_hedge",
+  "task.surrogate=gp,pfn",
+  "task.d=2,5",
+  "task.hedge_eta=1.0,10.0"
+ ],
+ "backend": "detached",
+ "commit": "d3036429e9f9f2ee1732e6c78f67c23d543b3aa0",
+ "branch": "exp/bbob-hedge",
+ "tag": "sweep/bbob_hedge/pilot_20261110-180520",
+ "allow_dirty": false,
+ "dirty_paths": [],
+ "editable_dependencies": {},
+ "host": "ruhkopf-XPS-15-9510",
+ "created": "2026-11-10T18:05:20",
+ "n_members": 8
+}
