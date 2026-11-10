@@ -152,3 +152,8 @@ class GPEngine(Engine):
         mu, sd = gp.predict(C.double())
         inc = z.min(1).values
         return gp_scores(name, mu, sd, inc).float(), mu.float(), None
+
+    @torch.no_grad()
+    def posterior_mean_u(self, X, Y, C):
+        """Phi(mu): the GP's latent mean mapped back from the Gaussian copula to the rank scale (0, 1)."""
+        return _N.cdf(self.score("mean", X, Y, C)[1].double()).float()
