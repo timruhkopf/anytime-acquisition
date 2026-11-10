@@ -88,6 +88,19 @@ Annotated literature for this project. BibTeX for every entry lives in `referenc
   ν ∈ {0.1, 1}. Hedge beat Exp3 and NormalHedge (which collapses to exploitation). Experiments: Branin,
   Hartman 3/6, 25 runs, gap metric. The UAI version lists the authors as Hoffman, Brochu, de Freitas.
 
+### [benjamins2022automateddesignbayesianoptimization] Benjamins, Jankovic, Raponi, van der Blom, Lindauer, Doerr (2022). *Towards Automated Design of Bayesian Optimization via Exploratory Landscape Analysis*. 6th Workshop on Meta-Learning at NeurIPS 2022. arXiv:2211.09678
+- **Status:** abstract read (2026-11-10).
+- **Claim:** a random-forest regressor on exploratory landscape analysis (ELA) features computed from the
+  initial design is enough to recommend, per run, an acquisition function (or AF schedule) that beats every
+  static choice on BBOB (COCO).
+- **Relevance:** closest related work for switching on BBOB (#8/#10). It is per-run algorithm selection
+  from hand-crafted landscape features of the initial design. We condition on the frozen PFN's in-context
+  belief instead and can switch within a run. It is a natural non-PFN baseline: ELA features → AF
+  choice. Same group as `benjamins2023sawei`.
+- **Used in:** background for `bbob_switching` and the learned selector (problem statement, Stage 1+).
+- **Notes:** check the full paper for the AF portfolio, the schedules (static vs switching after a budget
+  fraction), the ELA feature set, and which BBOB dimensions and budgets they used before comparing.
+
 ### [benjamins2023sawei] Benjamins, Raponi, Jankovic, Doerr, Lindauer (2023). *Self-Adjusting Weighted Expected Improvement for Bayesian Optimization*. AutoML 2023 (PMLR 224). arXiv:2306.04262
 - **Status:** read
 - **Claim:** Adapting Weighted EI's exploration weight α during a run, whenever the upper-bound regret (UBR) stalls, ranks among the best of the static acquisitions (EI, PI, LCB), the hand-made schedules and GP-Hedge on 24 noise-free BBOB functions (8D, 3 instances, 10 seeds, SMAC GP).
