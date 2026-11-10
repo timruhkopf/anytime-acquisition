@@ -101,8 +101,24 @@ Annotated literature for this project. BibTeX for every entry lives in `referenc
   - it generates x with no explicit belief; we act on a frozen PFN's posterior and a set of acquisition
     options.
   Candidate *external baseline*: open weights, a 2–20D range that covers ours (d <= 6), zero-shot.
-- **Notes:** check in the full paper whether it conditions on returns (regret-to-go) like RIBBO and how the
-  target is set at test time (see the critique under RIBBO). Also check its GP prior (kernels, lengthscales,
+- **Architecture (paper text, via the user 2026-11-10):**
+  - inputs are four token types: regret, length, action (the proposed point) and state (the function
+    value). It *does* condition on regret like RIBBO, so the critique there applies; check how the target
+    is set at test time;
+  - **each action dimension is its own token**: a fixed sinusoidal embedding of the normalized value, plus
+    two learned positional embeddings (dimension and step);
+  - a causal decoder-only transformer, trained with cross-entropy on binned action and state values
+    (2,000 linear bins).
+  So x is generated autoregressively, one coordinate at a time, each a categorical given the earlier
+  coordinates. That is a bar distribution per dimension.
+- **Why the per-dimension tokens matter to us:**
+  - our PFN embeds a point as *one* token (padded to `max_x_dim`, rescaled by `n_features`).
+    Per-dimension tokens are dimension-agnostic without padding and let attention address single inputs
+    (relevance / d_eff);
+  - for an action head, an autoregressive per-coordinate bar distribution p(x_j | x_<j, context) is an
+    alternative to a parametric mixture over x. It is exact in shape (multimodal per coordinate), costs d
+    sequential steps per proposal, and the context grows to about T·(d + 3) tokens (quadratic attention).
+- **Notes:** check how the regret target is set at test time (see the critique under RIBBO). Also check its GP prior (kernels, lengthscales,
   noise), the 12 behavior variants, and the budgets. A comparison with us is possible only on the overlap
   d = 2–6.
 
