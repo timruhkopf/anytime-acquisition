@@ -57,6 +57,18 @@ Annotated literature for this project. BibTeX for every entry lives in `referenc
 - **Relevance:** closest amortized acquisition with a transformer; differs from us by training the backbone jointly (ours is frozen) and by not testing switching.
 - **Used in:** README
 
+### [hsieh2021reinforcedfewshotacquisitionfunction] Hsieh, Hsieh, Liu (2021). *Reinforced Few-Shot Acquisition Function Learning for Bayesian Optimization* (FSAF). arXiv:2106.04335
+- **Status:** abstract read (2026-11-10); venue to-verify (arXiv lists none; probably NeurIPS 2021).
+- **Claim:** FSAF treats a deep Q-network as a differentiable acquisition function. It learns a *distribution*
+  of Q-networks (Bayesian DQN, KL-regularized, prior from a demo policy induced by an off-the-shelf AF such
+  as EI) with a Bayesian-MAML meta-loss, so it adapts few-shot to new tasks. It is dimension- and
+  cardinality-agnostic and is on par with or better than state-of-the-art baselines on synthetic and real
+  test functions.
+- **Relevance:** closest related work and a learned-AF baseline. Like MetaBO it learns one new AF by RL
+  rather than choosing among existing ones (contrast GP-Hedge, `brochu2011hedge`). Its demo-policy prior
+  and few-shot adaptation answer MetaBO's overfitting problem, a risk our prior-amortized policy shares.
+- **Used in:** background for the learned selector (problem statement, Stage 1+).
+
 ### [chen2022optformer] Chen, Song, Lee, Wang, Zhang, Dohan, Kawakami, Kochanski, Doucet, Ranzato, Perel, de Freitas (2022). *Towards Learning Universal Hyperparameter Optimizers with Transformers*. NeurIPS 2022. arXiv:2205.13320
 - **Status:** skimmed
 - **Claim:** A transformer trained on optimization traces imitates and can improve on the HPO algorithms that produced them.
