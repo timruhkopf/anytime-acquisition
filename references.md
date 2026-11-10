@@ -103,8 +103,8 @@ Annotated literature for this project. BibTeX for every entry lives in `referenc
   Candidate *external baseline*: open weights, a 2–20D range that covers ours (d <= 6), zero-shot.
 - **Notes:** check in the full paper whether it conditions on returns (regret-to-go) like RIBBO and how the
   target is set at test time (see the critique under RIBBO). Also check its GP prior (kernels, lengthscales,
-  noise), the 12 behavior variants, and the budgets. Its d range matches `pfn_large`'s d <= 6 only at the
-  low end.
+  noise), the 12 behavior variants, and the budgets. A comparison with us is possible only on the overlap
+  d = 2–6.
 
 ### [chen2022optformer] Chen, Song, Lee, Wang, Zhang, Dohan, Kawakami, Kochanski, Doucet, Ranzato, Perel, de Freitas (2022). *Towards Learning Universal Hyperparameter Optimizers with Transformers*. NeurIPS 2022. arXiv:2205.13320
 - **Status:** skimmed
