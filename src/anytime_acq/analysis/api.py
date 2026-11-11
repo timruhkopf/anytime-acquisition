@@ -92,3 +92,34 @@ def gate_verdict(main: dict[str, object], worthwhile: float = 0.05) -> str:
     if float(main["rel_lo"]) > -worthwhile:  # type: ignore[arg-type]
         return "NO-GO"
     return "INCONCLUSIVE"
+
+
+CHANCE = {"auc": 0.5, "r2": 0.0, "within_spearman": 0.0}
+DECISION_TARGETS = {"headroom_bin": "auc", "adv": "within_spearman"}
+
+
+def readable(probes: pd.DataFrame, target: str, inp: str, metric: str) -> bool:
+    """Some probe model on input `inp` predicts `target` above chance (CI lower bound > chance)."""
+    r = probes.loc[(probes.target == target) & (probes.input == inp) & (probes.metric == metric)]
+    return bool((r.lo > CHANCE[metric]).any())
+
+
+def beats(contrasts: pd.DataFrame, target: str, a: str, b: str) -> bool:
+    """Input a beats input b on `target` for some probe model (paired CI lower bound > 0)."""
+    r = contrasts.loc[(contrasts.target == target) & (contrasts.a == a) & (contrasts.b == b)]
+    return bool((r.lo > 0).any())
+
+
+def probe_verdict(probes: pd.DataFrame, contrasts: pd.DataFrame) -> str:
+    """The pre-registered rule of notebook 08 (api_probe), on the decision-relevant targets: whether deviating
+    pays in a state (headroom_bin, AUC) and the within-state ranking of candidates by their true advantage
+    (adv, within-state Spearman).
+
+    GO if one of them is readable from all layers *and* all layers beat the hand features. NO-GO if neither is
+    readable from any PFN input (last or all layers). Otherwise INCONCLUSIVE."""
+    for target, metric in DECISION_TARGETS.items():
+        if readable(probes, target, "all", metric) and beats(contrasts, target, "all", "hand"):
+            return "GO"
+    if not any(readable(probes, tg, inp, m) for tg, m in DECISION_TARGETS.items() for inp in ("last", "all")):
+        return "NO-GO"
+    return "INCONCLUSIVE"

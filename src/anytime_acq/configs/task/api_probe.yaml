@@ -1,0 +1,22 @@
+# Readout probes (tasks/api_probe.py, experimental/probes.py; research_log/decisions/0006 §1).
+name: api_probe
+d: 2
+pfn: pfn_large
+n_init_per_d: 2
+T_per_d: 10
+candidates: {n_sobol: 1024, n_local: 64, local_sigmas: [0.01, 0.05, 0.2]}  # as api (features only)
+api_candidates: {n_global: 64, n_top: 4, n_local_per_point: 16, local_sigmas: [0.01, 0.03, 0.1]}
+labels:              # a round-1 label set (artifact of an api run), relative to the runs root, pinned
+  path: api_round1/pilot_20261111-133311/0/tracking/artifacts/labels.pt
+  sha256: c27d893923d0f003ed7b1e1148ad6670c1f5fb061ac7cdf137eb2a8a64c678d9
+n_states: 4000
+headroom_threshold: 0.5  # % of gap: a state "pays to deviate" (about the top 10% in api_round1)
+kg_n_y: 8                # stratified predictive quantiles per KG candidate
+test_frac: 0.2           # states (one per task) held out for evaluation
+n_boot: 500
+group: 128               # states per PFN pass
+draw_chunk: 500          # tasks drawn together (memory)
+task_draw: {n_dense: 4096, n_refine: 8, refine_steps: 50}  # as the label tasks: x* only (f* is the label set's)
+tf32: false
+device: cuda
+chunk: 256
