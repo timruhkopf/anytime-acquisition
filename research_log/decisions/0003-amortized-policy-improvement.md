@@ -1,4 +1,4 @@
-<!-- Design document by Tim, 2026-11-11, added verbatim from the shared doc ("Amortized policy improvement for PFN-based BO: method, training and prior"). Status: adopted as the plan for issue #13; round 1 implemented on exp/13-api-round1 with the scope deviations listed in notebooks/06_2026-11-11_api_round1.ipynb. Companion assessment: 0004-pfn-finetuning-on-bo-trajectories.md. -->
+<!-- Refined by 0006-value-decoder-design.md (query decoder, all-layer readout, bar-distribution advantages, quantile rule). Design document by Tim, 2026-11-11, added verbatim from the shared doc ("Amortized policy improvement for PFN-based BO: method, training and prior"). Status: adopted as the plan for issue #13; round 1 implemented on exp/13-api-round1 with the scope deviations listed in notebooks/06_2026-11-11_api_round1.ipynb. Companion assessment: 0004-pfn-finetuning-on-bo-trajectories.md. -->
 
 # Amortized policy improvement for PFN-based BO: method, training and prior
 
