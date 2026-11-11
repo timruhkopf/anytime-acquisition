@@ -137,3 +137,23 @@ contexts bootstrapped from latent EI) to every round's policy, with queries anyw
 Not adopted yet. Prerequisite: round 1 (#13) runs on the frozen PFN, so that the PFN version stays fixed
 for the first measurement. Next step if pursued: an issue in pfn-repro for a trajectory-store context
 source, and the experiment in §5 here.
+
+## Relation to 0005 (added 2026-11-11)
+
+[0005](0005-assessment-pfn-finetuning-on-rollout-contexts.md) is Tim's assessment of the same proposal, logged
+verbatim. The two agree on the core points:
+- design ignorability makes BO contexts valid training data for the same Bayesian target;
+- trajectories must be non-anticipating, with no outcome-based selection;
+- fine-tuning happens only at round boundaries;
+- correlated prefixes mean the instance count, not the prefix count, is the sample size;
+- forgetting is guarded by a prior-context mixture.
+
+0005 adds what this note lacks:
+- a separate test-noise stream, because common random numbers would otherwise leak the context's noise into
+  test targets (rule 3);
+- the four-arm attribution (original or fine-tuned PFN × EI or π_k);
+- an error-size gate (E1) before any fine-tuning;
+- held-out-policy evaluation.
+
+One difference: 0005 redefines all policies on the fine-tuned PFN at the boundary and relabels. This note kept x₀ on
+PFN_k until relabeling. 0005's schedule is the cleaner one; follow it.

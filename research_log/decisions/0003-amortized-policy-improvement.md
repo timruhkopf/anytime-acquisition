@@ -569,7 +569,7 @@ Expectation, not a result: most of the gain comes in rounds 1 and 2, followed by
 - [ ] Number of labeled candidates per state (16) and continuation seeds (4) after the pilot's variance estimate.
 - [ ] Whether summary heads for f\* and the median are added in Stage 0.
 - [ ] Which real suites form the external evaluation: HPO-B, Bayesmark, PD1.
-- [ ] (added 2026-11-11) Fine-tune the PFN between rounds on the non-anticipating trajectories that policy iteration produces anyway, mixed with prior contexts and queried anywhere via the ground truth: assessed in [0004](0004-pfn-finetuning-on-bo-trajectories.md), not acted on.
+- [ ] (added 2026-11-11) Fine-tune the PFN between rounds on the non-anticipating trajectories that policy iteration produces anyway, mixed with prior contexts and queried anywhere via the ground truth: assessed in [0004](0004-pfn-finetuning-on-bo-trajectories.md) and [0005](0005-assessment-pfn-finetuning-on-rollout-contexts.md) (Tim; the reference version), not acted on.
 - [ ] Output-invariance ranges for the affine map (a, b) and the warp family, and the standardization fallbacks for tiny contexts (§7.4).
 
 ### 10.3 References
