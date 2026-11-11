@@ -1,6 +1,14 @@
 ---
 experiment: api_decoder
-sweeps: []
+sweeps:
+- id: pilot_20261111-165340
+  stage: pilot
+  commit: 4274e77f8c51
+  decision: NO_GO
+  reason: rule* q0.5 deviates 0.2%; delta -0.1% [-1.1%, +0.9%] rules out 5%; ranking
+    0.060 = untrained log EI
+  members: 1/1 done
+  decided: '2026-11-11'
 ---
 # Amortized policy improvement, round 2: the 0006 value decoder (Phase A)
 

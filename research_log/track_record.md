@@ -183,3 +183,30 @@ tests (template hook incident).
 - A `direct` table was added and pre-registered in notebook 08, then the pilot was rerun. The original probes reproduce exactly (max |Δ| = 0).
 - Within-state Spearman with the label: log EI and PI 0.063, KG 0.048, every |ρ| ≤ 0.075.
 - Taken with api_gate §2 (0.042) and the probes (≤ 0.025): the headroom over EI is not in the PFN's belief.
+
+### 2026-11-11 22:05 — api_decoder pilot decided NO-GO (e5a9918); session deliverables and open questions
+
+- Snapshot `results/api_decoder/pilot_20261111-165340` (1/1 DONE). Notebook 09 executed; Observations written; log §2; `decide` NO-GO.
+  - rule\* q0.5 deviates at 0.2% of steps.
+  - Δ vs EI is −0.1% [−1.1%, +0.9%].
+  - Validation ranking is 0.060, the same as untrained log EI (0.063).
+- Verified: the EI trajectories are identical across rounds 1 and 2 (max |Δ| 3e-7 over 1000 tasks). Every number above was re-read from the cell outputs.
+
+**Deliverables (branch exp/13-api-round1).** Each notebook has its pre-registration, Observations and verdict.
+
+| Notebook | Experiment | Verdict | Snapshot(s) |
+|---|---|---|---|
+| 07 | api_gate | INCONCLUSIVE | `pilot_20261111-164326` |
+| 08 | api_probe | INCONCLUSIVE, plus the direct-score addendum | `pilot_20261111-163954`, `pilot_20261111-204422` |
+| 09 | api_decoder | NO-GO | `pilot_20261111-165340` |
+
+**Overall.** On noise-free P0 (d = 2, T = 20) with the frozen pfn_large:
+- the one-step advantage over EI's pick is not predictable from the PFN's belief;
+- trained readouts reach ≤ 0.025, the PFN lookahead 0.042, KG 0.048, log EI 0.063, and the decoder 0.060, against a label reliability of 0.57.
+- Policy improvement over EI from this belief, as set up here, has nothing to learn.
+
+**Open questions (for the user; these are design decisions, so none were launched).**
+1. Is the clairvoyant headroom PFN error, which would make fine-tuning on BO contexts worthwhile (0004/0005 E1)? Or is it irreducible outcome luck? A test: compute labels under the PFN's own predictive (belief labels) and compare their spread with the ground-truth labels.
+2. Should the label change from one-step-deviation advantages to multi-step or terminal returns? The policy-iteration loop would then not hinge on a one-step improvement over EI.
+3. Would a noisy prior or a higher d (Phase B; the noisy PFN lives in pfn-repro) open headroom that the belief can see?
+4. Should external baselines (ZeroShotOpt retrained on our prior, GP-Hedge) wait until one of 1–3 gives a positive signal?
