@@ -106,3 +106,20 @@ the anytime-acquisition-hedge worktree with nothing running.
   - the head has no ranking skill (val Spearman −0.01);
   - π₁ at c\* = 1: −0.8% [−2.5%, +0.2%]; at c = 0: +448%; the null head: 0.
 - Cancelled at Tim's request: the 16:00 job (0006 Phase A). It resumes when Tim says so; readout probes come first.
+
+### 2026-11-11 16:20 — Mandate (autonomous, overnight): progress the api experiments
+
+Mandate (Tim, 2026-11-11 ~16:15): "make it work over night and progress the experiments". Priority, as Tim stated:
+1. the readout experiments (0006 §1 probes);
+2. then policy iteration (0006 value decoder, Phase A noise-free);
+3. external baselines (GP-Hedge, ZeroShotOpt) only later.
+
+Planned:
+- `api_gate`: the model-based gate of 0003 §8.3 at the pilot's states, plus the model-based rollout policy against EI.
+  It needs no learning and answers whether a deployable lookahead finds the headroom.
+- `api_probe`: the 0006 §1 probes.
+- Then the 0006 decoder.
+
+Allowed launches: sanity and pilot sweeps of these experiments on ulysses while it is idle. Each experiment is
+pre-registered in its notebook before its first run. Push from the worktree with --no-verify after running the
+tests (template hook incident).

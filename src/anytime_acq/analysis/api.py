@@ -81,3 +81,14 @@ def api_verdict(main: dict[str, object], null: dict[str, object], worthwhile: fl
     if float(main["rel_lo"]) > -worthwhile:  # type: ignore[arg-type]
         return "NO-GO"
     return "INCONCLUSIVE"
+
+
+def gate_verdict(main: dict[str, object], worthwhile: float = 0.05) -> str:
+    """The pre-registered rule of notebook 07 (api_gate), on paired_delta(test, "mb", "ei"): GO if the
+    model-based rollout policy lowers mean normalized regret by >= `worthwhile` (relative) with the CI of the
+    difference below 0; NO-GO if the CI rules out that gain; otherwise INCONCLUSIVE."""
+    if float(main["rel"]) <= -worthwhile and float(main["hi"]) < 0:  # type: ignore[arg-type]
+        return "GO"
+    if float(main["rel_lo"]) > -worthwhile:  # type: ignore[arg-type]
+        return "NO-GO"
+    return "INCONCLUSIVE"
