@@ -123,3 +123,15 @@ Planned:
 Allowed launches: sanity and pilot sweeps of these experiments on ulysses while it is idle. Each experiment is
 pre-registered in its notebook before its first run. Push from the worktree with --no-verify after running the
 tests (template hook incident).
+
+### 2026-11-11 16:27 — api_gate and api_probe implemented, pre-registered; sanity runs on ulysses (4f4c750)
+
+- `api_gate` (eaffd7a) and `api_probe` (9e3c342, 4f4c750): code, configs, notebooks 07 and 08 with their
+  descriptions, log entries. Verified: 103 unit tests pass (5 gate tests, 4 probe tests, each including the pipeline
+  end to end on a tiny label set); ruff clean. The pyright errors that remain are in files this branch does not touch.
+- A local CPU sanity of `api_probe` (60 states) showed heavy-tailed state targets: the gap has a median of 0.17 %
+  and a maximum of 182 %; the headroom reaches 18. Raw-scale R² was meaningless. Revised before the pilot: log gap,
+  asinh headroom, asinh labels, plus a Spearman metric. Recorded in notebook 08; the decision rule is unchanged.
+- ulysses reachable again about 16:25. Its labels.pt sha256 matches the pin (c27d8939…). GPU idle. Launched:
+  - `api_gate` sanity (100 states, 20 tasks), pid 1764119;
+  - `api_probe` sanity (300 states), pid 1764222.
