@@ -1,0 +1,28 @@
+{
+ "id": "pilot_20261111-164326",
+ "experiment": "api_gate",
+ "stage": "pilot",
+ "kind": "grid",
+ "command": "just sweep detached pilot experiment=api_gate task.d=2",
+ "overrides": [
+  "experiment=api_gate",
+  "task.d=2"
+ ],
+ "backend": "detached",
+ "commit": "5ce73d21063f5ce2614f48aec28f1619b4b4519c",
+ "branch": "HEAD",
+ "tag": "sweep/api_gate/pilot_20261111-164326",
+ "allow_dirty": false,
+ "host": "ulysses",
+ "created": "2026-11-11T16:43:26",
+ "editable_dependencies": {},
+ "status_counts": {
+  "DONE": 1
+ },
+ "first_start": "2026-11-11T16:43:29",
+ "last_end": "2026-11-11T20:40:39",
+ "wall_h": 3.953,
+ "device_h": 0.0,
+ "snapshot_created": "2026-11-11T20:41:22",
+ "sweep_dir": "runs/api_gate/pilot_20261111-164326"
+}
