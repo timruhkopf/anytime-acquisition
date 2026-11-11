@@ -8,9 +8,10 @@ Representations (frozen `pfn_large`, no training of the PFN):
   of `logits_from_context_kv`) -> [G, J, L+1, d_model].
 
 Targets (ground truth from the task, or computed by the PFN for KG):
-- state level: remaining gap (incumbent − f*) in % of the task's gap; x* (location, d values); the number of
-  relevant inputs (prior's relevant_mask); roughness (log mean |grad f| over Sobol points); and the
-  clairvoyant headroom of the state (cross-fitted best advantage of the labels, and whether it is > 0.5);
+- state level: log10 of the remaining gap (incumbent − f*) in % of the task's gap; x* (location, d values);
+  the number of relevant inputs (prior's relevant_mask); roughness (log mean |grad f| over Sobol points); and
+  the clairvoyant headroom of the state (asinh of the cross-fitted best advantage of the labels, and whether
+  it is > 0.5; both heavy-tailed);
 - candidate level: the ground-truth advantage label; KG by re-encoding (`kg_reencode`).
 
 Probes: ridge regression (linear, regularization chosen on a validation part of the training tasks) and a
@@ -229,3 +230,9 @@ def within_spearman(pred: np.ndarray, y: np.ndarray, group: np.ndarray) -> np.nd
         else:
             out.append(spearmanr(pred[m], y[m]).statistic)
     return np.asarray(out, dtype=float)
+
+
+def spearman(pred: np.ndarray, y: np.ndarray) -> float:
+    from scipy.stats import spearmanr
+
+    return float(spearmanr(pred, y).statistic) if np.std(pred) > 0 and np.std(y) > 0 else float("nan")

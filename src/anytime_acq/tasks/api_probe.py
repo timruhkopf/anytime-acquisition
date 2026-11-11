@@ -30,6 +30,7 @@ from ..experimental.probes import (
     r2,
     ridge_fit_predict,
     roughness,
+    spearman,
     within_spearman,
 )
 from ..tracking.sink import Run
@@ -38,7 +39,7 @@ from .api import _dict
 from .api_gate import load_labels
 from .bo import _candidates
 
-STATE_TARGETS = ("gap_inc", "xstar", "n_relevant", "rough", "headroom", "headroom_bin")
+STATE_TARGETS = ("log_gap", "xstar", "n_relevant", "rough", "headroom", "headroom_bin")
 CAND_TARGETS = ("adv", "kg")
 
 
@@ -96,12 +97,14 @@ def state_targets(cfg: DictConfig, L: dict, S: int) -> dict[str, torch.Tensor]:
     inc = torch.stack([L["F"][i, : n_init + int(bt[i])].min() for i in range(S)])
     fstar, fmed = L["fstar"][:S], L["fmed"][:S]
     head = crossfit_headroom(L["R"][:S], L["lab_valid"][:S])
+    gap = 100 * (inc - fstar).clamp(min=0) / (fmed - fstar).clamp(min=1e-9)
+    # both are heavy-tailed (api_probe sanity): probe log10 of the gap and asinh of the headroom
     return {
-        "gap_inc": 100 * (inc - fstar).clamp(min=0) / (fmed - fstar).clamp(min=1e-9),
+        "log_gap": torch.log10(gap + 1e-3),
         "xstar": torch.cat(xs),
         "n_relevant": torch.cat(rel),
         "rough": torch.cat(rough),
-        "headroom": head,
+        "headroom": torch.asinh(head),
         "headroom_bin": (head > float(t.headroom_threshold)).float(),
     }
 
@@ -147,7 +150,8 @@ def api_probe(cfg: DictConfig, run: Run) -> float:
         "last": torch.cat([rep["qs"][:, :, -1], pool[:, None, -1].expand(-1, J, -1)], -1),
         "all": torch.cat([rep["qs"].flatten(2), pool.flatten(1)[:, None].expand(-1, J, -1)], -1),
     }
-    targets_c = {"adv": L["adv"][:S], "kg": rep["kg"]}
+    # asinh: the labels are heavy-tailed; monotone, so the within-state ranking is unchanged
+    targets_c = {"adv": torch.asinh(L["adv"][:S]), "kg": rep["kg"]}
 
     rows, contrasts = [], []
     B = int(t.n_boot)
@@ -164,34 +168,40 @@ def api_probe(cfg: DictConfig, run: Run) -> float:
                     p = mlp_fit_predict(Xtr, y[tr].to(dev), Xte, kind, seed=int(cfg.seed))
                 p, yt = p.cpu().numpy(), y[te].numpy()
                 if kind == "bin":
-                    metric, mname = (lambda ii, p=p, yt=yt: auc(p[ii], yt[ii])), "auc"
+                    metrics = {"auc": lambda ii, p=p, yt=yt: auc(p[ii], yt[ii])}
                 elif yt.ndim > 1:
-                    metric, mname = (lambda ii, p=p, yt=yt: r2(p[ii].ravel(), yt[ii].ravel())), "r2"
+                    metrics = {"r2": lambda ii, p=p, yt=yt: r2(p[ii].ravel(), yt[ii].ravel())}
                 else:
-                    metric, mname = (lambda ii, p=p, yt=yt: r2(p[ii], yt[ii])), "r2"
-                lo, hi = _boot(metric, len(yt), B, 0)
-                rows.append(
-                    {
-                        "target": name,
-                        "level": "state",
-                        "input": inp,
-                        "model": model,
-                        "metric": mname,
-                        "value": metric(np.arange(len(yt))),
-                        "lo": lo,
-                        "hi": hi,
+                    metrics = {
+                        "r2": lambda ii, p=p, yt=yt: r2(p[ii], yt[ii]),
+                        "spearman": lambda ii, p=p, yt=yt: spearman(p[ii], yt[ii]),
                     }
-                )
-                preds[(inp, model)] = (metric, len(yt))
+                for mname, metric in metrics.items():
+                    lo, hi = _boot(metric, len(yt), B, 0)
+                    rows.append(
+                        {
+                            "target": name,
+                            "level": "state",
+                            "input": inp,
+                            "model": model,
+                            "metric": mname,
+                            "value": metric(np.arange(len(yt))),
+                            "lo": lo,
+                            "hi": hi,
+                        }
+                    )
+                # contrasts on the last metric: auc, spearman (rank, robust to the tails), r2 for x*
+                preds[(inp, model)] = (metric, len(yt), mname)
         for model in ("ridge", "mlp"):
             for a, b in (("all", "last"), ("all", "hand"), ("last", "hand")):
-                ma, n = preds[(a, model)]
-                mb, _ = preds[(b, model)]
+                ma, n, mname = preds[(a, model)]
+                mb, _, _ = preds[(b, model)]
                 lo, hi = _boot(lambda ii, ma=ma, mb=mb: ma(ii) - mb(ii), n, B, 1)
                 contrasts.append(
                     {
                         "target": name,
                         "model": model,
+                        "metric": mname,
                         "a": a,
                         "b": b,
                         "diff": ma(np.arange(n)) - mb(np.arange(n)),
@@ -249,6 +259,7 @@ def api_probe(cfg: DictConfig, run: Run) -> float:
                     {
                         "target": name,
                         "model": model,
+                        "metric": "within_spearman",
                         "a": a,
                         "b": b,
                         "diff": float(np.nanmean(ra - rb)),

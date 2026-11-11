@@ -111,5 +111,6 @@ def test_pipeline_end_to_end(tmp_path: Path) -> None:
     assert {"probes", "contrasts", "reliability", "targets"} <= set(tables)
     pr = tables["probes"]
     assert set(pr.input) == {"hand", "last", "all"}
-    assert {"headroom_bin", "adv", "kg", "gap_inc", "xstar"} <= set(pr.target)
+    assert {"headroom_bin", "adv", "kg", "log_gap", "xstar"} <= set(pr.target)
+    assert {"auc", "r2", "spearman", "within_spearman"} <= set(pr.metric)
     assert len(tables["targets"]) == 12
