@@ -1,0 +1,22 @@
+{
+ "id": "sanity_20261111-162647",
+ "experiment": "api_probe",
+ "stage": "sanity",
+ "kind": "grid",
+ "command": "just run detached sanity experiment=api_probe task.n_states=300 task.n_boot=100",
+ "overrides": [
+  "experiment=api_probe",
+  "task.n_states=300",
+  "task.n_boot=100"
+ ],
+ "backend": "detached",
+ "commit": "4f4c750ea0608cb778aa8c07203771e78ce576aa",
+ "branch": "HEAD",
+ "tag": "sweep/api_probe/sanity_20261111-162647",
+ "allow_dirty": false,
+ "dirty_paths": [],
+ "editable_dependencies": {},
+ "host": "ulysses",
+ "created": "2026-11-11T16:26:47",
+ "n_members": 1
+}
