@@ -9,6 +9,6 @@ Session diary: [track_record.md](track_record.md) · backlog: GitHub issues labe
 | [2026-10-21_switching](entries/2026-10-21_switching.md) | `switching` | — |
 | [2026-10-22_bbob-switching](entries/2026-10-22_bbob-switching.md) | `bbob_switching` | pilot `pilot_20261022-144551`: **GO**<br>confirm `confirm_20261022-145708`: **GO**<br>confirm `confirm_20261023-075829`: **GO** |
 | [2026-11-11_api-decoder](entries/2026-11-11_api-decoder.md) | `api_decoder` | — |
-| [2026-11-11_api-gate](entries/2026-11-11_api-gate.md) | `api_gate` | — |
+| [2026-11-11_api-gate](entries/2026-11-11_api-gate.md) | `api_gate` | pilot `pilot_20261111-164326`: **INCONCLUSIVE** |
 | [2026-11-11_api-probe](entries/2026-11-11_api-probe.md) | `api_probe` | pilot `pilot_20261111-163954`: **INCONCLUSIVE** |
 | [2026-11-11_api-round1](entries/2026-11-11_api-round1.md) | `api_round1` | pilot `pilot_20261111-133311`: **NO_GO** |

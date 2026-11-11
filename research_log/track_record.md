@@ -169,3 +169,11 @@ tests (template hook incident).
 - Still running on ulysses:
   - `api_gate` pilot (pid 1766111);
   - `api_decoder` pilot (pid 1766691; launched 16:53 after the probe pilot freed GPU memory).
+
+### 2026-11-11 20:55 — api_gate pilot decided INCONCLUSIVE (33190b6)
+
+- Snapshot `results/api_gate/pilot_20261111-164326` (1/1 DONE). Notebook 07 executed; Observations written; log §2; `decide` INCONCLUSIVE.
+- Stage 1b: mb − EI is +0.028 [−0.58, 0.74], relative +1.9% [−38%, +49%] over 200 tasks. The CI is too wide to decide.
+- Stage 1a: G is 0.080 [−0.025, 0.19], against 0.035 for random deviation. The within-state Spearman between the model advantage and the label is 0.042.
+- Conclusion: the PFN's belief barely ranks candidates, which agrees with the probes. Stage 1b is not scaled.
+- Still running: the `api_decoder` pilot (pid 1766691).
