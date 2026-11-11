@@ -93,3 +93,16 @@ the anytime-acquisition-hedge worktree with nothing running.
   - `user.email` resolves from `~/.gitconfig`.
   The push was redone with `--no-verify`; the full suite had passed when run normally (92 passed).
   Fix belongs in research-template: the template tests must clear the `GIT_*` variables.
+
+### 2026-11-11 16:10 — Network outage; pilot DONE, assessed, decided NO-GO (f786313)
+
+- ulysses was unreachable from about 14:30 (ssh banner timeouts, no ping). Tim paused all work and talked to the
+  admin. The box did not reboot (uptime 77 days at 15:58); the pilot ran through the outage, 1/1 DONE.
+- Pulled, snapshotted (`results/api_round1/pilot_20261111-133311`), notebook 06 executed; log §2; `decide` NO_GO.
+  Verified: every cell ran without error, and every number in the Observations was re-read from the cell outputs or
+  from a recomputation on the same snapshot.
+- Result:
+  - clairvoyant cross-fitted headroom 0.70 [0.57, 0.84] % of the gap per state;
+  - the head has no ranking skill (val Spearman −0.01);
+  - π₁ at c\* = 1: −0.8% [−2.5%, +0.2%]; at c = 0: +448%; the null head: 0.
+- Cancelled at Tim's request: the 16:00 job (0006 Phase A). It resumes when Tim says so; readout probes come first.
