@@ -155,3 +155,17 @@ tests (template hook incident).
   - `api_probe` pilot (`pilot_20261111-163954`);
   - `api_gate` pilot (`pilot_20261111-164326`, pid 1766111).
 - Queued: the `api_decoder` pilot, launched by a waiter once the probe pilot exits.
+
+### 2026-11-11 17:05 — api_probe pilot decided INCONCLUSIVE (7e45c42)
+
+- Snapshot `results/api_probe/pilot_20261111-163954` (1/1 DONE). Notebook 08 executed; Observations written;
+  log §2; `decide` INCONCLUSIVE. Verified: every number in the Observations and in §2 was re-read from the cell
+  outputs.
+- Readable from PFN states, with all layers better than the last:
+  - x\*: R² 0.53 (all), 0.45 (last), 0.00 (hand);
+  - n_relevant, roughness.
+- Not readable from any input: the advantage label (within-state Spearman ≤ 0.025; label reliability 0.57) and
+  headroom_bin (best AUC 0.68 from hand features).
+- Still running on ulysses:
+  - `api_gate` pilot (pid 1766111);
+  - `api_decoder` pilot (pid 1766691; launched 16:53 after the probe pilot freed GPU memory).
