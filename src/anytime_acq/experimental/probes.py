@@ -98,13 +98,16 @@ def kg_reencode(engine: Engine, X: Tensor, Y: Tensor, xq: Tensor, C: Tensor, n_y
     return old[:, None] - new.view(G, J, n_y).mean(-1)
 
 
-def roughness(tasks: TaskSet, n: int = 1024) -> Tensor:
-    """[B]: log mean gradient norm of f over a scrambled-Sobol design (true task)."""
-    x = torch.quasirandom.SobolEngine(tasks.d, scramble=True, seed=31).draw(n).to(tasks.fstar.device)
-    x = x[None].expand(tasks.B, -1, -1).clone().requires_grad_(True)
-    tasks.f(x).sum().backward()
-    assert x.grad is not None
-    return torch.log(x.grad.norm(dim=-1).mean(1) + 1e-9).detach()
+def roughness(tasks: TaskSet, n: int = 1024, chunk: int = 128) -> Tensor:
+    """[B]: log mean gradient norm of f over a scrambled-Sobol design (true task); in chunks of points (memory)."""
+    x_all = torch.quasirandom.SobolEngine(tasks.d, scramble=True, seed=31).draw(n).to(tasks.fstar.device)
+    tot = torch.zeros(tasks.B, device=tasks.fstar.device)
+    for s in range(0, n, chunk):
+        x = x_all[None, s : s + chunk].expand(tasks.B, -1, -1).clone().requires_grad_(True)
+        tasks.f(x).sum().backward()
+        assert x.grad is not None
+        tot += x.grad.norm(dim=-1).sum(1).detach()
+    return torch.log(tot / n + 1e-9)
 
 
 # --------------------------------------------------------------------------------------------------
@@ -124,34 +127,62 @@ def ridge_fit_predict(
     alphas: tuple[float, ...] = (1e-2, 1e-1, 1.0, 10.0, 100.0, 1e3, 1e4),
     val_frac: float = 0.2,
     groups: Tensor | None = None,
+    chunk: int = 4096,
 ) -> tuple[Tensor, float]:
     """Ridge with alpha chosen on a validation part of the training rows (by group if given). ytr [N] or [N, k].
-    -> predictions on Xte, chosen alpha."""
-    Xtr, Xte = _standardize(Xtr.double(), Xte.double())
+    Standardized inputs; float64 normal equations accumulated over row chunks (no float64 copy of X), or the
+    kernel form when there are more features than rows. -> predictions on Xte, chosen alpha."""
+    m, sd = Xtr.mean(0), Xtr.std(0).clamp(min=1e-6)
     y = ytr.double()
     ym = y.mean(0)
-    n = len(Xtr)
+    yc = y - ym
+    n, p = Xtr.shape
     g = torch.arange(n) if groups is None else groups.cpu()
     ug = g.unique()
     perm = ug[torch.randperm(len(ug), generator=torch.Generator().manual_seed(0))]
     val_g = perm[: max(1, int(len(ug) * val_frac))]
     is_val = torch.isin(g, val_g).to(Xtr.device)
+    tr_i, va_i = (~is_val).nonzero().squeeze(1), is_val.nonzero().squeeze(1)
 
-    def solve(A: Tensor, b: Tensor, alpha: float) -> Tensor:
-        p = A.shape[1]
-        if p <= len(A):
-            return torch.linalg.solve(A.T @ A + alpha * torch.eye(p, dtype=A.dtype, device=A.device), A.T @ b)
-        K = A @ A.T
-        return A.T @ torch.linalg.solve(K + alpha * torch.eye(len(A), dtype=A.dtype, device=A.device), b)
+    def z(X: Tensor, idx: Tensor) -> Tensor:
+        return ((X[idx] - m) / sd).double()
 
+    def predict(X: Tensor, w: Tensor) -> Tensor:
+        idx = torch.arange(len(X), device=X.device)
+        return torch.cat([z(X, idx[s : s + chunk]) @ w for s in range(0, len(X), chunk)]) + ym
+
+    eye = lambda k: torch.eye(k, dtype=torch.float64, device=Xtr.device)  # noqa: E731
     best, best_a = math.inf, alphas[0]
+    if p > len(tr_i):  # kernel form (few rows)
+        A_tr, A_va = z(Xtr, tr_i), z(Xtr, va_i)
+        K = A_tr @ A_tr.T
+        for a in alphas:
+            w = A_tr.T @ torch.linalg.solve(K + a * eye(len(A_tr)), yc[tr_i])
+            err = float(((A_va @ w + ym - y[va_i]) ** 2).mean())
+            if err < best:
+                best, best_a = err, a
+        A = z(Xtr, torch.arange(n, device=Xtr.device))
+        w = A.T @ torch.linalg.solve(A @ A.T + best_a * eye(n), yc)
+        return predict(Xte, w).float(), best_a
+
+    def normal(idx: Tensor) -> tuple[Tensor, Tensor]:
+        G = torch.zeros(p, p, dtype=torch.float64, device=Xtr.device)
+        b = torch.zeros((p, *y.shape[1:]), dtype=torch.float64, device=Xtr.device)
+        for s in range(0, len(idx), chunk):
+            A = z(Xtr, idx[s : s + chunk])
+            G += A.T @ A
+            b += A.T @ yc[idx[s : s + chunk]]
+        return G, b
+
+    G1, b1 = normal(tr_i)
+    G2, b2 = normal(va_i)
     for a in alphas:
-        w = solve(Xtr[~is_val], (y - ym)[~is_val], a)
-        err = float(((Xtr[is_val] @ w + ym - y[is_val]) ** 2).mean())
+        w = torch.linalg.solve(G1 + a * eye(p), b1)
+        err = float(((predict(Xtr[va_i], w) - y[va_i]) ** 2).mean())
         if err < best:
             best, best_a = err, a
-    w = solve(Xtr, y - ym, best_a)
-    return (Xte @ w + ym).float(), best_a
+    w = torch.linalg.solve(G1 + G2 + best_a * eye(p), b1 + b2)
+    return predict(Xte, w).float(), best_a
 
 
 def mlp_fit_predict(
