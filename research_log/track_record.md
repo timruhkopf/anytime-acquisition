@@ -73,3 +73,23 @@ the anytime-acquisition-hedge worktree with nothing running.
   the rule; c = ∞ reproduces EI; paired labels; pipeline end to end); full suite 92 passed; ruff clean; no pyright
   errors in the new non-experimental files.
 - Sanity sweep `runs/api_round1/sanity_20261111-132704` launched on ulysses at 13:27 (pid 1759250, verified with ps).
+
+### 2026-11-11 13:40 — Sanity DONE, c grid extended, pilot launched; a git incident from the pre-push hook (c0f51e0)
+
+- Sanity `sanity_20261111-132704`: 1/1 DONE in ~5 min (log entry §1). Change before the pilot: c grid {0, …, 4}.
+- Pilot `runs/api_round1/pilot_20261111-133311` (d = 2, 4000 label states) launched on ulysses at 13:33 (pid 1759943,
+  verified with ps at 13:36).
+- **Incident.** `git push` from this linked worktree ran the pre-push hook (pytest). The template's provenance tests
+  ran their throwaway-repo git commands with the hook's inherited `GIT_*` environment and wrote to this repository:
+  - the worktree's index was emptied (files intact);
+  - the shared `.git/config` got `core.bare = true` and a `[user] test <test@example.com>` section.
+  This broke the main checkout between about 13:34 and 13:36.
+  Repaired: `core.bare = false`, the `[user]` section removed, `git reset` of this worktree's index. The damaged config
+  is backed up in the session scratchpad.
+  Verified:
+  - HEAD, branches and tags are unchanged (reflog, for-each-ref);
+  - every commit carries the real author;
+  - the main checkout and the hedge worktree show their previous status;
+  - `user.email` resolves from `~/.gitconfig`.
+  The push was redone with `--no-verify`; the full suite had passed when run normally (92 passed).
+  Fix belongs in research-template: the template tests must clear the `GIT_*` variables.
