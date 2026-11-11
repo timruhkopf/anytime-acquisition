@@ -1,0 +1,27 @@
+# Amortized policy improvement, round 1 (tasks/api.py, experimental/api.py; research_log/decisions/0003).
+name: api
+d: 2
+pfn: pfn_large
+n_init_per_d: 2        # n_init = 2d (shared scrambled Sobol), as in the bo pipeline
+T_per_d: 10            # T = 10d: context <= 12d <= 72, within pfn_large's n <= 100
+candidates: {n_sobol: 1024, n_local: 64, local_sigmas: [0.01, 0.05, 0.2]}  # pi_0's (EI's) candidate generator
+api_candidates: {n_global: 64, n_top: 4, n_local_per_point: 16, local_sigmas: [0.01, 0.03, 0.1]}  # C(s): 133
+label:
+  split: 4             # training instances (bo/tasks.py::task_seed: 3+ are readout/training data)
+  task_offset: 0
+  n_tasks: 4000        # one labeled branch state per instance
+  chunk_tasks: 1000    # instances drawn and labeled together (memory)
+  n_labeled: 16        # x0 + 15 per state
+  n_cont: 4            # continuation replicates per candidate (CRN across candidates)
+  behaviour: {ei: 0.8, ucb0.99: 0.1, pi: 0.1}  # 20% off-policy branch states (0003 §5.2, coverage)
+  val_frac: 0.1        # instances held out for early stopping
+  task_draw: {n_dense: 4096, n_refine: 8, refine_steps: 50}  # f* only normalizes labels; lowered by all rollouts
+head: {width: 256, layers: 2, heads: 4}
+train: {lr: 3.0e-4, wd: 0.01, batch: 128, epochs: 60, patience: 8}
+calib: {split: 0, n_tasks: 300, task_offset: 0, cs: [0.0, 0.5, 1.0, 2.0]}
+test: {split: 1, n_tasks: 1000, task_offset: 0}
+eps: 1.0e-4            # log10(regret + eps), as in the bo pipeline
+tf32: false
+device: cuda
+chunk: 256             # lanes per PFN call (memory only)
+task_draw: {n_dense: 16384, n_refine: 16, refine_steps: 200}  # calibration and test tasks
