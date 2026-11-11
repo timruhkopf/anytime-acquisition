@@ -177,3 +177,9 @@ tests (template hook incident).
 - Stage 1a: G is 0.080 [−0.025, 0.19], against 0.035 for random deviation. The within-state Spearman between the model advantage and the label is 0.042.
 - Conclusion: the PFN's belief barely ranks candidates, which agrees with the probes. Stage 1b is not scaled.
 - Still running: the `api_decoder` pilot (pid 1766691).
+
+### 2026-11-11 21:05 — api_probe addendum: direct scores (fc305ea, snapshot pilot_20261111-204422)
+
+- A `direct` table was added and pre-registered in notebook 08, then the pilot was rerun. The original probes reproduce exactly (max |Δ| = 0).
+- Within-state Spearman with the label: log EI and PI 0.063, KG 0.048, every |ρ| ≤ 0.075.
+- Taken with api_gate §2 (0.042) and the probes (≤ 0.025): the headroom over EI is not in the PFN's belief.
