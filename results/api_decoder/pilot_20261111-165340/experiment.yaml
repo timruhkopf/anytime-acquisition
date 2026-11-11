@@ -1,0 +1,9 @@
+# @package _global_
+# Amortized policy improvement, round 2 (research_log/decisions/0006): the query decoder over EI with a
+# calibrated quantile rule, against EI. Pre-registration: notebooks/09_2026-11-11_api_decoder.ipynb.
+# Labels on split 4 (round 1's + new), the rule calibrated on split 0, test on split 1 (never selected on).
+defaults:
+  - override /task: api_decoder
+
+task:
+  d: 2

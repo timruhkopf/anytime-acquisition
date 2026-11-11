@@ -1,0 +1,21 @@
+{
+ "id": "pilot_20261111-165340",
+ "experiment": "api_decoder",
+ "stage": "pilot",
+ "kind": "grid",
+ "command": "just sweep detached pilot experiment=api_decoder task.d=2",
+ "overrides": [
+  "experiment=api_decoder",
+  "task.d=2"
+ ],
+ "backend": "detached",
+ "commit": "4274e77f8c513af5da80f4b37f4fafd515261e4f",
+ "branch": "HEAD",
+ "tag": "sweep/api_decoder/pilot_20261111-165340",
+ "allow_dirty": false,
+ "dirty_paths": [],
+ "editable_dependencies": {},
+ "host": "ulysses",
+ "created": "2026-11-11T16:53:40",
+ "n_members": 1
+}
