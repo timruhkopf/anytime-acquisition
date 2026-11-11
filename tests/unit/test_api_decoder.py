@@ -33,11 +33,12 @@ def test_bars() -> None:
     b = bars.borders
     assert (b.diff() > 0).all()
     assert ((b == -1e-3) | (b == 1e-3)).sum() == 2  # the zero bin
+    assert bars.n_bins == 31
     logits = torch.randn(3, 5, bars.n_bins)
-    # the density integrates to 1: NLL on a fine grid, Riemann sum
-    y = torch.linspace(float(b[0]) + 1e-6, float(b[-1]) - 1e-6, 400_001)
-    dens = (-bars.nll(logits[:1, :1].expand(len(y), 1, -1)[:, 0], y)).exp()
-    assert abs(float(torch.trapezoid(dens, y)) - 1) < 1e-2
+    # the density integrates to 1: density at each bin's midpoint times the bin width (piecewise uniform)
+    mid = (b[1:] + b[:-1]) / 2
+    dens = (-bars.nll(logits[:1, :1].expand(len(mid), 1, -1)[:, 0], mid)).exp()
+    torch.testing.assert_close((dens * b.diff()).sum(), torch.tensor(1.0))
     # quantiles are monotone in the level, and the median of a one-bin distribution is the bin's midpoint
     q = torch.stack([bars.quantile(logits, lv) for lv in (0.1, 0.5, 0.9)])
     assert (q.diff(dim=0) >= 0).all()

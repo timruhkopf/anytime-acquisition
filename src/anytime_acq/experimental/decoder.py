@@ -115,20 +115,13 @@ class Bars(nn.Module):
 
     @staticmethod
     def from_targets(a: Tensor, n_bins: int, zero_eps: float) -> "Bars":
-        """Inner borders at quantiles of the training targets a [N] (heavy tails, mass near 0), the zero bin,
-        and outer borders beyond the observed range."""
-        a = a.flatten().float()
-        if len(a) > 1_000_000:
-            a = a[torch.randperm(len(a), generator=torch.Generator().manual_seed(0))[:1_000_000]]
-        lo, hi = float(a.min()), float(a.max())
-        qs = torch.quantile(a.cpu(), torch.linspace(0.001, 0.999, n_bins - 3, dtype=torch.float32))
-        qs = qs[(qs.abs() > 2 * zero_eps)]
-        b = torch.cat(
-            [qs, torch.tensor([-zero_eps, zero_eps, min(lo, -2 * zero_eps) - 1.0, max(hi, 2 * zero_eps) + 1.0])]
-        )
-        b = b.unique().sort().values
-        keep = torch.cat([torch.tensor([True]), b.diff() > 1e-7])
-        return Bars(b[keep], zero_eps)
+        """Signed-log borders (0006 §3): the zero bin [−zero_eps, zero_eps], then (n_bins − 1) / 2 bins per side,
+        log-spaced from zero_eps to the largest |a| of the training targets (times 1.5). Quantile borders
+        collapsed onto the zero bin in the api_decoder sanity: most single-seed advantages are within ±0.002."""
+        amax = max(float(a.abs().max()) * 1.5, 10 * zero_eps)
+        k = (n_bins - 1) // 2
+        pos = torch.logspace(math.log10(zero_eps), math.log10(amax), k + 1, dtype=torch.float64)
+        return Bars(torch.cat([-pos.flip(0), pos]).float(), zero_eps)
 
     @property
     def n_bins(self) -> int:
