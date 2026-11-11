@@ -1,0 +1,28 @@
+seed: 0
+task.T_per_d: 10
+task.api_candidates.local_sigmas: '[0.01, 0.03, 0.1]'
+task.api_candidates.n_global: 64
+task.api_candidates.n_local_per_point: 16
+task.api_candidates.n_top: 4
+task.candidates.local_sigmas: '[0.01, 0.05, 0.2]'
+task.candidates.n_local: 64
+task.candidates.n_sobol: 1024
+task.chunk: 256
+task.d: 2
+task.device: cuda
+task.draw_chunk: 500
+task.group: 128
+task.headroom_threshold: 0.5
+task.kg_n_y: 8
+task.labels.path: api_round1/pilot_20261111-133311/0/tracking/artifacts/labels.pt
+task.labels.sha256: c27d893923d0f003ed7b1e1148ad6670c1f5fb061ac7cdf137eb2a8a64c678d9
+task.n_boot: 500
+task.n_init_per_d: 2
+task.n_states: 4000
+task.name: api_probe
+task.pfn: pfn_large
+task.task_draw.n_dense: 4096
+task.task_draw.n_refine: 8
+task.task_draw.refine_steps: 50
+task.test_frac: 0.2
+task.tf32: false

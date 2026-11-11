@@ -1,0 +1,9 @@
+# @package _global_
+# Readout probes (research_log/decisions/0006 §1): last layer vs all layers of the frozen PFN, against the
+# round-1 head's hand features. Pre-registration: notebooks/08_2026-11-11_api_probe.ipynb.
+# States: the 4000 labeled states of api_round1's pilot (split 4).
+defaults:
+  - override /task: api_probe
+
+task:
+  d: 2
