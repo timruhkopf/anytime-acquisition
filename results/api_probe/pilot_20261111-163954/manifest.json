@@ -1,0 +1,28 @@
+{
+ "id": "pilot_20261111-163954",
+ "experiment": "api_probe",
+ "stage": "pilot",
+ "kind": "grid",
+ "command": "just sweep detached pilot experiment=api_probe task.d=2",
+ "overrides": [
+  "experiment=api_probe",
+  "task.d=2"
+ ],
+ "backend": "detached",
+ "commit": "5ce73d21063f5ce2614f48aec28f1619b4b4519c",
+ "branch": "HEAD",
+ "tag": "sweep/api_probe/pilot_20261111-163954",
+ "allow_dirty": false,
+ "host": "ulysses",
+ "created": "2026-11-11T16:39:54",
+ "editable_dependencies": {},
+ "status_counts": {
+  "DONE": 1
+ },
+ "first_start": "2026-11-11T16:39:56",
+ "last_end": "2026-11-11T16:53:37",
+ "wall_h": 0.228,
+ "device_h": 0.0,
+ "snapshot_created": "2026-11-11T16:54:02",
+ "sweep_dir": "runs/api_probe/pilot_20261111-163954"
+}
