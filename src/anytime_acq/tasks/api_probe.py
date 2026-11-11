@@ -7,7 +7,8 @@ fit on 80% of the states (split by task) and evaluated on the rest.
 
 Tables: `probes` (target, level, input, model, metric, value, bootstrap CI over test states), `contrasts`
 (all layers − last layer, all layers − hand features: paired bootstrap over test states), `reliability`
-(split-half reliability of the candidate labels), `targets` (per state: the state-level targets).
+(split-half reliability of the candidate labels), `targets` (per state: the state-level targets), `direct`
+(within-state Spearman of untrained scores, KG and the PFN's predictive features, against the label).
 """
 
 import time
@@ -41,6 +42,8 @@ from .bo import _candidates
 
 STATE_TARGETS = ("log_gap", "xstar", "n_relevant", "rough", "headroom", "headroom_bin")
 CAND_TARGETS = ("adv", "kg")
+# the first columns of experimental/api.py::_features' per-candidate features (the `direct` table)
+HAND_C_NAMES = ("rel_mu", "sd_rel", "rel_q05", "rel_q95", "log_ei", "pi")
 
 
 def crossfit_headroom(R: torch.Tensor, lab_valid: torch.Tensor) -> torch.Tensor:
@@ -284,6 +287,15 @@ def api_probe(cfg: DictConfig, run: Run) -> float:
             }
         ),
     )
+    # direct (untrained) scores against the label, on all labeled states: does any belief quantity rank candidates?
+    adv_all = L["adv"][:S][cmask].numpy()
+    direct = {"kg": rep["kg"]} | {n: rep["hand_c"][..., i] for i, n in enumerate(HAND_C_NAMES)}
+    drows = []
+    for n, v in direct.items():
+        rho = within_spearman(v[cmask].numpy(), adv_all, grp)
+        lo, hi = _boot(lambda ii, rho=rho: np.nanmean(rho[ii]), len(rho), B, 0)
+        drows.append({"score": n, "within_spearman": float(np.nanmean(rho)), "lo": lo, "hi": hi})
+    run.log_table("direct", pd.DataFrame(drows))
     probes = pd.DataFrame(rows)
     run.log_table("probes", probes)
     run.log_table("contrasts", pd.DataFrame(contrasts))

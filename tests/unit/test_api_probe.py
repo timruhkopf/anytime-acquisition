@@ -108,7 +108,8 @@ def test_pipeline_end_to_end(tmp_path: Path) -> None:
     run = Run(tmp_path / "probe")
     api_probe(cfg, run)
     tables = {p.stem: pd.read_parquet(p) for p in (run.artifacts / "tables").glob("*.parquet")}
-    assert {"probes", "contrasts", "reliability", "targets"} <= set(tables)
+    assert {"probes", "contrasts", "reliability", "targets", "direct"} <= set(tables)
+    assert set(tables["direct"].score) >= {"kg", "log_ei"}
     pr = tables["probes"]
     assert set(pr.input) == {"hand", "last", "all"}
     assert {"headroom_bin", "adv", "kg", "log_gap", "xstar"} <= set(pr.target)
