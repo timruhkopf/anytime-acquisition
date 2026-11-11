@@ -135,3 +135,23 @@ tests (template hook incident).
 - ulysses reachable again about 16:25. Its labels.pt sha256 matches the pin (c27d8939…). GPU idle. Launched:
   - `api_gate` sanity (100 states, 20 tasks), pid 1764119;
   - `api_probe` sanity (300 states), pid 1764222.
+
+### 2026-11-11 16:50 — Sanity runs done; pilots of api_probe and api_gate running, api_decoder queued (4274e77)
+
+- `api_decoder` (0006 Phase A) implemented: 1c54997, with notebook 09 pre-registered.
+  - 5 unit tests, including query independence (a candidate's score does not depend on the other candidates), the
+    density of the bar distribution, and the EI lanes equal π₀.
+- Sanity on ulysses, all DONE:
+  - `api_gate`: 100 states, 20 tasks;
+  - `api_probe`: 300 states;
+  - `api_decoder`: 4200 states, 30 + 30 tasks.
+  - Snapshots are in results/, and the analysis cells of notebooks 07 and 08 execute on them.
+- Revisions before the pilots, each recorded in its notebook with the reason:
+  - probes: log or asinh targets plus Spearman (heavy tails);
+  - probes: chunked roughness and normal equations, after the first pilot launch failed from GPU memory pressure
+    next to two other runs (5ce73d2);
+  - decoder: signed-log bar borders (4274e77).
+- Running:
+  - `api_probe` pilot (`pilot_20261111-163954`);
+  - `api_gate` pilot (`pilot_20261111-164326`, pid 1766111).
+- Queued: the `api_decoder` pilot, launched by a waiter once the probe pilot exits.
