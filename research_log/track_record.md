@@ -50,3 +50,26 @@ Earlier the same day: issues #6–#9 filed; pfn-repro#3 filed with the noise rat
   - Does the headroom survive at a larger budget (SAWEI uses 35d) and with noise (#9)?
   - The PFN at d = 2: the top arm doesn't transfer from split 0 to split 1 (ucb0.9 beats the selected ucb0.99 by
     28%), so B\* selection on 48 tasks is noisy.
+
+### 2026-11-11 13:30 — Mandate: amortized policy improvement, round 1 (issue #13)
+
+Mandate (Tim, 2026-11-11): a new branch and worktree (another session works in this repository); add the design
+document "Amortized policy improvement for PFN-based BO" to the research log; implement and run its first stage on
+ulysses if the GPU has room; report with a notebook comparing the learned first policy-iteration result against EI,
+with the conservative update rule in place; open the notebook in PyCharm. Added during the session: assess the
+proposal to fine-tune the PFN on BO trajectories as a separate logged document, without acting on it.
+Allowed launches: api_round1 sanity and pilot on ulysses (GPU checked idle: 0%, 4 MiB, 13:20).
+Peers asked first: two sessions are in another checkout (AnytimeAcquisition, branch pfn-native-acquisition), one in
+the anytime-acquisition-hedge worktree with nothing running.
+
+### 2026-11-11 13:27 — Design logged, round 1 implemented, sanity launched (a929cf2, 171a48b)
+
+- Worktree `../anytime-acquisition-api`, branch `exp/13-api-round1` from `feat/11-gp-hedge` (main lacks the engine).
+- Design: `decisions/0003` (verbatim + provenance), `decisions/0004` (assessment of the PFN fine-tuning idea).
+- Code: experimental/api.py, tasks/api.py, analysis/api.py; notebook 06 description (pre-registration) before any run.
+  Scope: "first stage" = round 1 of 0003 (labels → head → conservative π₁ → calibrated c → test vs EI) on the frozen
+  noise-free `pfn_large`; 0003's Stage 0 (two-headed PFN) needs pfn-repro work and is out of scope.
+- Verified: 9 new tests (query path reproduces the PFN logits; x₀ equals Engine.propose's EI pick; anchoring;
+  the rule; c = ∞ reproduces EI; paired labels; pipeline end to end); full suite 92 passed; ruff clean; no pyright
+  errors in the new non-experimental files.
+- Sanity sweep `runs/api_round1/sanity_20261111-132704` launched on ulysses at 13:27 (pid 1759250, verified with ps).

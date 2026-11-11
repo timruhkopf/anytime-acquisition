@@ -18,7 +18,7 @@ label:
   task_draw: {n_dense: 4096, n_refine: 8, refine_steps: 50}  # f* only normalizes labels; lowered by all rollouts
 head: {width: 256, layers: 2, heads: 4}
 train: {lr: 3.0e-4, wd: 0.01, batch: 128, epochs: 60, patience: 8}
-calib: {split: 0, n_tasks: 300, task_offset: 0, cs: [0.0, 0.5, 1.0, 2.0]}
+calib: {split: 0, n_tasks: 300, task_offset: 0, cs: [0.0, 0.5, 1.0, 2.0, 3.0, 4.0]}
 test: {split: 1, n_tasks: 1000, task_offset: 0}
 eps: 1.0e-4            # log10(regret + eps), as in the bo pipeline
 tf32: false

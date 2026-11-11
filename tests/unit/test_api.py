@@ -215,7 +215,16 @@ def test_pipeline_end_to_end(tmp_path: Path) -> None:
     tables = {p.stem: pd.read_parquet(p) for p in (run.artifacts / "tables").glob("*.parquet")}
     assert {"labels", "calib", "test", "best", "decisions", "fstar"} <= set(tables)
     c_star = run.read()["summary"]["calib/c_star"]
-    assert set(tables["test"].arm) == {"ei", "api_c0", "api_c0.5", "api_c1", "api_c2", f"null_c{c_star:g}"}
+    assert set(tables["test"].arm) == {
+        "ei",
+        "api_c0",
+        "api_c0.5",
+        "api_c1",
+        "api_c2",
+        "api_c3",
+        "api_c4",
+        f"null_c{c_star:g}",
+    }
     assert len(tables["labels"]) == 12 * 5
     assert np.isfinite(tables["test"].norm_regret).all()
     assert (run.artifacts / "heads.pt").exists()
