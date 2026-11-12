@@ -253,3 +253,12 @@ These are scratch checks (`uv run`, not tracked), run on 200 of the pinned label
   - Share of the domain within one bin of f\*: median 0.54% (1-D tasks 1.9%, 2-D tasks 0.07%).
   - Within 10 bins: median 3.9%. Within 100 bins: 27%.
 - y on the ECDF scale is not quantized: 0.01% of the values lie on a 0.001 grid.
+
+### 2026-11-12 09:50 — ei_opt pilot decided INCONCLUSIVE (snapshot pilot_20261112-091043)
+
+- Mandate (Tim): "go ahead" with step 1, a deterministic π₀ and how suboptimal the sampled EI is. Launched the sanity run (09:04, 5.3 min) and the pilot (09:10, 26 min) on an idle ulysses.
+- Sampled EI is stochastic: replicate picks differ in 90% of states, and the replicate sd of the final normalized regret (median 0.0072, mean 0.79) is the round-1 label noise. Its value is near-optimal: EI ratio median 0.995.
+- `fixed+refine` vs `sampled`: normalized regret −5.7% [−19%, +7%], but log regret +0.056 [0.013, 0.100] log10 (worse). Unrefined `fixed` is deterministic and indistinguishable from `sampled` on both scales (post hoc).
+- Also added, as a scratch figure (not committed): budget vs regret for EI, π₁ and the decoder on the 1000 split-1 tasks.
+  - EI's median regret reaches 1e-5.1 in ECDF units at T, far below one PFN bin.
+  - The labels' linear normalized regret gives no signal for that late progress. Tim clarified that the reward should reward progress near the optimum (log scale).
