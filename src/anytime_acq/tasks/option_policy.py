@@ -60,7 +60,9 @@ def option_list(t: DictConfig) -> list[tuple[str, str, int]]:
     return out
 
 
-def collect(cfg: DictConfig, engine: Engine) -> dict:
+def collect(cfg: DictConfig, engine: Engine, run: Run | None = None) -> dict:
+    """With `run`: after every task chunk, the labels so far go to the artifact `labels_partial.pt` and the
+    progress to the run's metrics, so a long collection can be evaluated before it ends (`evaluate` on it)."""
     t = cfg.task
     dev, d = t.device, int(t.d)
     n_init, T = int(t.n_init_per_d * d), int(t.T_per_d * d)
@@ -74,6 +76,20 @@ def collect(cfg: DictConfig, engine: Engine) -> dict:
     fstar = torch.empty(N)
     fd, fb, fz, names = [], [], [], {}
     all_seeds = [task_seed(int(t.tasks.split), d, int(t.tasks.task_offset) + i) for i in range(N)]
+
+    def pack(n: int) -> dict:
+        return {
+            "regret": (best[:n] - fstar[:n, None, None, None]).clamp(min=0),  # [n, S, 1 + options, seeds]; 0 = base
+            "state_regret": (state_best[:n] - fstar[:n, None]).clamp(min=0),  # [n, S], privileged, diagnostic
+            "data": torch.cat(fd),
+            "belief": torch.cat(fb),
+            "z": torch.cat(fz).half(),
+            "names": names,
+            "options": [o[0] for o in opts[1:]],
+            "steps": steps,
+            "task_seeds": all_seeds[:n],
+        }
+
     for c0 in range(0, N, int(t.task_chunk)):
         ts = all_seeds[c0 : c0 + int(t.task_chunk)]
         with torch.enable_grad():  # draw_tasks refines f* by gradient descent
@@ -110,17 +126,11 @@ def collect(cfg: DictConfig, engine: Engine) -> dict:
         fd.append(torch.stack(cd, 1).cpu())
         fb.append(torch.stack(cbf, 1).cpu())
         fz.append(torch.stack(cz, 1).cpu())
-    return {
-        "regret": (best - fstar[:, None, None, None]).clamp(min=0),  # [N, S, 1 + options, seeds]; option 0 = base
-        "state_regret": (state_best - fstar[:, None]).clamp(min=0),  # [N, S], privileged, diagnostic
-        "data": torch.cat(fd),
-        "belief": torch.cat(fb),
-        "z": torch.cat(fz).half(),
-        "names": names,
-        "options": [o[0] for o in opts[1:]],
-        "steps": steps,
-        "task_seeds": all_seeds,
-    }
+        if run is not None and c0 + B < N:
+            run.artifacts.mkdir(parents=True, exist_ok=True)
+            torch.save(pack(c0 + B), run.artifacts / "labels_partial.pt")
+            run.log_metric("collect/tasks_done", float(c0 + B), step=c0 + B)
+    return pack(N)
 
 
 def advantages(regret: torch.Tensor, eps: float) -> torch.Tensor:
@@ -257,7 +267,7 @@ def option_policy(cfg: DictConfig, run: Run) -> float:
     pfn = load(t.pfn)[0].to(t.device).eval()
     engine = Engine(pfn, None, _candidates(t.candidates), base_seed=cfg.seed, chunk=int(t.chunk))
     t0 = time.time()
-    L = collect(cfg, engine)
+    L = collect(cfg, engine, run)
     run.log_summary(**{"time/collect_s": time.time() - t0})
     run.artifacts.mkdir(parents=True, exist_ok=True)
     torch.save(L, run.artifacts / "labels.pt")

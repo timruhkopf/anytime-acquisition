@@ -133,6 +133,8 @@ def test_pipeline_end_to_end(tmp_path: Path) -> None:
     tables = {p.stem: pd.read_parquet(p) for p in (run.artifacts / "tables").glob("*.parquet")}
     assert {"summary", "per_task", "usage", "fit", "options"} <= set(tables)
     L = torch.load(run.artifacts / "labels.pt", weights_only=False)
+    part = torch.load(run.artifacts / "labels_partial.pt", weights_only=False)  # written after the first chunk
+    assert part["regret"].shape[0] == 7 and torch.equal(part["data"], L["data"][:7])
     R = L["regret"]
     assert R.shape == (12, 2, 1 + 4 * 2, 2) and len(L["options"]) == 8
     # under seed 0 the base lane from any step is the prefix itself: one value per task
