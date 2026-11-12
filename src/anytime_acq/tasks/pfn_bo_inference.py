@@ -28,8 +28,8 @@ from pfn_repro.objectives.bar_distribution import BarDistribution
 from ..analysis.inference import inference_verdict
 from ..bo import nuisance
 from ..bo.engine import Engine
-from ..bo.tasks import draw_tasks
-from ..experimental.api import pfn_pass
+from ..bo.tasks import _select, draw_tasks
+from ..experimental.api import base_picks, pfn_pass
 from ..experimental.pfn_inference import ece, event_prob, ks_uniform, local_points, score_points
 from ..experimental.probes import within_spearman
 from ..tracking.sink import Run
@@ -60,6 +60,8 @@ def collect(cfg: DictConfig, engine: Engine, L: dict, S: int) -> tuple[pd.DataFr
     ks = [int(k) for k in t.event_bins]
     base = int(cfg.seed)
     pts, cands, sts = [], [], []
+    sigmas = tuple(float(v) for v in t.points.local_sigmas)
+    fcheck = 0.0
     for c0 in range(0, S, int(t.draw_chunk)):
         ii = torch.arange(c0, min(c0 + int(t.draw_chunk), S))
         seeds = L["seed"][ii].tolist()
@@ -80,21 +82,30 @@ def collect(cfg: DictConfig, engine: Engine, L: dict, S: int) -> tuple[pd.DataFr
                     base, "pbi_design", 0, torch.zeros(G, dtype=torch.long), gs, (n_init + T, d), S, False, dev
                 )[:, :n]
                 Fr = tasks.f(Xr, rows_t)
-                # held-out points: uniform, local around the BO incumbent, EI's pick at the state
-                U = nuisance.stream(base, "pbi_query", 0, torch.zeros(G, dtype=torch.long), gs, (Ku, d), S, False, dev)
-                z = nuisance.stream(base, "pbi_query", 1, torch.zeros(G, dtype=torch.long), gs, (Kl, d), S, True, dev)
-                x_inc = X[torch.arange(G, device=dev), F.argmin(1)]
-                Lp = local_points(x_inc, z, tuple(float(v) for v in t.points.local_sigmas))
-                x0 = L["C"][g, :1].to(dev)
-                Q = torch.cat([U, Lp, x0], 1)  # [G, Qn, d]
-                fq = tasks.f(Q, rows_t)
+                fcheck = max(fcheck, float((tasks.f(X, rows_t) - F).abs().max()))
+                # held-out points per context, each chosen from that context's own data only (ignorable):
+                # uniform (shared), local around the context's incumbent, the context's EI pick
+                zeros = torch.zeros(G, dtype=torch.long)
+                U = nuisance.stream(base, "pbi_query", 0, zeros, gs, (Ku, d), S, False, dev)
+                z = nuisance.stream(base, "pbi_query", 1, zeros, gs, (Kl, d), S, True, dev)
                 ptype = np.array(["uniform"] * Ku + ["local"] * Kl + ["ei_pick"])
+                ar = torch.arange(G, device=dev)
                 for di, (Xc, Fc) in enumerate(((X, F), (Xr, Fr))):
+                    Lp = local_points(Xc[ar, Fc.argmin(1)], z, sigmas)
+                    if di == 0:  # the state's EI pick, as labeled in round 1
+                        x0 = L["C"][g, :1].to(dev)
+                    else:
+                        x0 = base_picks(engine, Xc, Fc, gs, zeros.to(dev), tb, S)[:, :1]
+                    Q = torch.cat([U, Lp, x0], 1)  # [G, Qn, d]
+                    fq = tasks.f(Q, rows_t)
+                    # the PFN's target: y = f with the instance's own preactivation and output noise
+                    pr = _select(tasks.prior, rows_t)
+                    pr.generator = torch.Generator(device=dev).manual_seed(base * 7919 + c0 * 101 + tb * 13 + s + di)
+                    yq = pr.evaluate(Q, noise=True)
                     lg, _ = pfn_pass(engine, Xc, Fc, Q, with_z=False)
-                    u = nuisance.stream(
-                        base, "pbi_pit", di, torch.zeros(G, dtype=torch.long), gs, (Q.shape[1],), S, False, dev
-                    )
-                    ld, pit = score_points(bd, lg, fq, u)
+                    u = nuisance.stream(base, "pbi_pit", di, zeros, gs, (Q.shape[1],), S, False, dev)
+                    ld, pit = score_points(bd, lg, yq, u)
+                    ld_f, pit_f = score_points(bd, lg, fq, u)
                     inc = Fc.min(1).values
                     rec = {
                         "state": np.repeat(g.numpy(), Q.shape[1]),
@@ -102,15 +113,19 @@ def collect(cfg: DictConfig, engine: Engine, L: dict, S: int) -> tuple[pd.DataFr
                         "ptype": np.tile(ptype, G),
                         "t": tb,
                         "f": fq.flatten().cpu().numpy(),
+                        "y": yq.flatten().cpu().numpy(),
                         "inc": np.repeat(inc.cpu().numpy(), Q.shape[1]),
                         "log_density": ld.flatten().cpu().numpy(),
                         "pit": pit.flatten().cpu().numpy(),
+                        "log_density_f": ld_f.flatten().cpu().numpy(),
+                        "pit_f": pit_f.flatten().cpu().numpy(),
                         "mean": bd.mean(lg).flatten().cpu().numpy(),
                     }
                     for k in ks:
                         thr = (inc - k * w)[:, None].expand(-1, Q.shape[1])
                         rec[f"p_k{k}"] = event_prob(bd, lg, thr).flatten().cpu().numpy()
-                        rec[f"o_k{k}"] = (fq < thr).flatten().cpu().numpy()
+                        rec[f"o_k{k}"] = (yq < thr).flatten().cpu().numpy()
+                        rec[f"of_k{k}"] = (fq < thr).flatten().cpu().numpy()
                     pts.append(pd.DataFrame(rec))
                     del lg
                 # test 1: PFN scores of the labeled candidates at the BO context
@@ -156,6 +171,7 @@ def collect(cfg: DictConfig, engine: Engine, L: dict, S: int) -> tuple[pd.DataFr
     C = pd.concat(cands, ignore_index=True)
     St = pd.concat(sts, ignore_index=True).sort_values("state").reset_index(drop=True)
     St["stratum"] = gap_stratum(St.gap_bins.to_numpy())
+    St.attrs["f_check"] = fcheck
     return P, C, St
 
 
@@ -299,7 +315,14 @@ def pfn_bo_inference(cfg: DictConfig, run: Run) -> float:
     S = min(int(t.n_states), len(L["seed"]))
     t0 = time.time()
     P, C, St = collect(cfg, engine, L, S)
-    run.log_summary(**{"time/collect_s": time.time() - t0, "n_states": float(S), "n_points": float(len(P))})
+    run.log_summary(
+        **{
+            "time/collect_s": time.time() - t0,
+            "n_states": float(S),
+            "n_points": float(len(P)),
+            "check/max_abs_f_minus_label_F": float(St.attrs["f_check"]),
+        }
+    )
     t0 = time.time()
     ks = [int(k) for k in t.event_bins]
     cal, con = calibration_tables(P, ks, int(t.n_boot))

@@ -95,8 +95,12 @@ def test_pipeline_end_to_end(tmp_path: Path) -> None:
     P = tables["points"]
     assert len(P) == 12 * 2 * 7 and set(P.design) == {"bo", "random"}
     assert bool(P.pit.between(0, 1).all())
-    # both designs are scored at the same points: the truth agrees row by row
-    bo, rd = P[P.design == "bo"].reset_index(drop=True), P[P.design == "random"].reset_index(drop=True)
+    # the uniform points are shared by both designs: the truth agrees row by row
+    U = P[P.ptype == "uniform"]
+    bo, rd = U[U.design == "bo"].reset_index(drop=True), U[U.design == "random"].reset_index(drop=True)
     assert np.allclose(bo.f, rd.f) and (bo.state == rd.state).all()
+    assert bool(P.y.between(0, 1).all()) and bool(P.pit_f.between(0, 1).all())
+    # the redrawn tasks reproduce the label set's observations
+    assert run.read()["summary"]["check/max_abs_f_minus_label_F"] < 1e-5
     assert len(tables["states"]) == 12
     assert {"reliability", "headroom", "spearman_log_ei", "frac_adv_below_bin"} <= set(tables["strata"].metric)
