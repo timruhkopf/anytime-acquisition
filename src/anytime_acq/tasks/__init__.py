@@ -10,6 +10,7 @@ from .api_decoder import api_decoder
 from .api_gate import api_gate
 from .api_probe import api_probe
 from .bo import bo
+from .ei_failure import ei_failure
 from .ei_opt import ei_opt
 from .option_headroom import option_headroom
 from .option_policy import option_policy
@@ -27,6 +28,7 @@ TASKS: dict[str, Pipeline] = {
     "ei_opt": ei_opt,
     "option_headroom": option_headroom,
     "option_policy": option_policy,
+    "ei_failure": ei_failure,
     "pfn_bo_inference": pfn_bo_inference,
     "toy_regression": toy_regression,  # the template's example; its own tests (`experiment=debug`) use it
 }
