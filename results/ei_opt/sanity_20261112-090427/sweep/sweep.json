@@ -1,0 +1,23 @@
+{
+ "id": "sanity_20261112-090427",
+ "experiment": "ei_opt",
+ "stage": "sanity",
+ "kind": "grid",
+ "command": "just sweep detached sanity experiment=ei_opt task.d=2 task.states.n_states=100 task.rollouts.n_tasks=50",
+ "overrides": [
+  "experiment=ei_opt",
+  "task.d=2",
+  "task.states.n_states=100",
+  "task.rollouts.n_tasks=50"
+ ],
+ "backend": "detached",
+ "commit": "295a9b90b750c838126de7db6e5c34c7fcd7fead",
+ "branch": "HEAD",
+ "tag": "sweep/ei_opt/sanity_20261112-090427",
+ "allow_dirty": false,
+ "dirty_paths": [],
+ "editable_dependencies": {},
+ "host": "ulysses",
+ "created": "2026-11-12T09:04:27",
+ "n_members": 1
+}

@@ -1,0 +1,30 @@
+{
+ "id": "sanity_20261112-090427",
+ "experiment": "ei_opt",
+ "stage": "sanity",
+ "kind": "grid",
+ "command": "just sweep detached sanity experiment=ei_opt task.d=2 task.states.n_states=100 task.rollouts.n_tasks=50",
+ "overrides": [
+  "experiment=ei_opt",
+  "task.d=2",
+  "task.states.n_states=100",
+  "task.rollouts.n_tasks=50"
+ ],
+ "backend": "detached",
+ "commit": "295a9b90b750c838126de7db6e5c34c7fcd7fead",
+ "branch": "HEAD",
+ "tag": "sweep/ei_opt/sanity_20261112-090427",
+ "allow_dirty": false,
+ "host": "ulysses",
+ "created": "2026-11-12T09:04:27",
+ "editable_dependencies": {},
+ "status_counts": {
+  "DONE": 1
+ },
+ "first_start": "2026-11-12T09:04:29",
+ "last_end": "2026-11-12T09:09:46",
+ "wall_h": 0.088,
+ "device_h": 0.0,
+ "snapshot_created": "2026-11-12T09:10:15",
+ "sweep_dir": "runs/ei_opt/sanity_20261112-090427"
+}
