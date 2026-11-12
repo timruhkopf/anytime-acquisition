@@ -262,3 +262,12 @@ These are scratch checks (`uv run`, not tracked), run on 200 of the pinned label
 - Also added, as a scratch figure (not committed): budget vs regret for EI, π₁ and the decoder on the 1000 split-1 tasks.
   - EI's median regret reaches 1e-5.1 in ECDF units at T, far below one PFN bin.
   - The labels' linear normalized regret gives no signal for that late progress. Tim clarified that the reward should reward progress near the optimum (log scale).
+
+### 2026-11-12 — decision 0008: where the headroom is
+
+- Recorded the shared reasoning in `research_log/decisions/0008-where-the-headroom-is.md`:
+  - why rounds 1 and 2 found nothing: linear reward, label noise from our own stochastic π₀, log regret mixing basin discovery with polishing, one-step deviations washed out by the horizon;
+  - the luck-corrected switching evidence: BBOB decided GO, +66% at d = 2 for the PFN; the prior pilot +37%, indicative only; the belief controller −49% (#6);
+  - the pitfalls and scaling of privileged basin labels;
+  - the new order of work: decompose by basin, exact option labels (arm for k steps, then π₀), then the belief.
+- The candidate-level relabeling round proposed earlier today is paused.
