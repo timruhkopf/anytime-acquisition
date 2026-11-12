@@ -1,6 +1,14 @@
 ---
 experiment: pfn_bo_inference
-sweeps: []
+sweeps:
+- id: pilot_20261112-084114
+  stage: pilot
+  commit: 3c475a72bd0a
+  decision: GO
+  reason: 'E2 narrowly: BO cov50 at EI picks 0.537 [0.521,0.551] vs control 0.517;
+    pooled within tolerance; E3 not supported'
+  members: 1/1 done
+  decided: '2026-11-12'
 ---
 # PFN inference on BO contexts: is the predictive calibrated where BO queries, and what does resolution do to the labels?
 

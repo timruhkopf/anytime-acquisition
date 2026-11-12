@@ -223,3 +223,19 @@ tests (template hook incident).
   - in 57% of labeled states the incumbent is within one bin of f\*;
   - 91% of the labeled advantages are smaller than one bin.
 - The explanations (E1 irreducible, E2 PFN error, E3 resolution, E4 label metric) and the tests that tell them apart: `research_log/decisions/0007-why-the-headroom-is-not-in-the-belief.md`.
+
+### 2026-11-12 08:50 — pfn_bo_inference (0007 tests 1–2) pilot decided GO, narrowly (80fce6b)
+
+- New experiment `pfn_bo_inference`:
+  - pre-registered in notebook 10 (8f9ba21);
+  - the sanity run exposed two design errors (the control's points were not ignorable; the score used f instead of the PFN's noisy target y). Both were revised before the pilot (03d8de2).
+  - The pilot was repeated for the repo's file-size limit (3c475a7) and reproduces exactly.
+- Snapshot `results/pfn_bo_inference/pilot_20261112-084114` (1/1 DONE). Notebook 10 executed; Observations written; log §2; `decide` GO.
+- Test 2, E2: GO by the pre-registered rule, narrowly.
+  - The trigger is cov50 at EI's picks, 0.537 [0.521, 0.551] vs the control's 0.517.
+  - Pooled over all points, BO contexts are calibrated within tolerance (cov90 0.881; control 0.900).
+  - The BO-specific under-coverage grows late in the run near the incumbent: local cov90 0.831 vs 0.879 at t 15–19.
+- Test 1:
+  - E3 not supported: log EI Spearman 0.04–0.05 in the ≥ 10-bin strata.
+  - E4 does not explain the headroom: the 57% of states with gap < 1 bin carry 2.1% of it, while the ≥ 10-bin strata carry 88%.
+- Next: 0007 test 3, a variance-reduced lookahead at the large-gap states.
