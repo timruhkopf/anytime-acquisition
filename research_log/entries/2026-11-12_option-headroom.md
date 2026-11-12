@@ -24,3 +24,34 @@ See the description at the top of `notebooks/12_2026-11-12_option_headroom.ipynb
 - an ε = 1e-5 robustness check.
 
 **Next.** The pilot (500 + 800 tasks).
+
+## §2 Pilot (2026-11-12)
+
+**What ran.**
+- 500 Part A tasks (split 0) and 800 Part B states (split 4, offset 20000), d = 2, two candidate-set seeds (`results/option_headroom/pilot_20261112-111235`, code 190c3a1).
+- It took 26 min on ulysses: A 7.3, B 18.3.
+- Analysis: notebook 12.
+
+**Result** (log10 terminal regret, ε = 1e-6; positive = better than EI):
+- Cross-fitted headroom of the arms: H₁ 0.116 [0.086, 0.153], **H₃ 0.195 [0.148, 0.244]**, H₅ 0.262 [0.212, 0.313].
+- Nulls ≈ 0: H₃ −0.007 [−0.026, 0.013].
+- Best single option: H₃,static 0.086 [0.043, 0.134].
+- **Context-dependent part (arms − static):** H₃ 0.109 [0.070, 0.150]; H₁ 0.092, H₅ 0.146, all CIs > 0.
+- Robust at ε = 1e-5: H₃ 0.147, context part 0.075 [0.044, 0.108].
+- Post hoc, the context part at k = 3: 2-D tasks 0.152 [0.087, 0.218], 1-D tasks 0.068 [0.026, 0.113].
+- Part A, mean final log10 regret: MES −4.67, UCB(0.995) −4.64, EI −4.48, PI −4.04, mean −3.57. EI is not the best static arm under log regret.
+- Basin gains are small (at most +0.034 net, UCB k = 5). The median τ = 0 for every arm.
+- The two descent settings agree on the basin label for 100% of tasks.
+
+**Interpretation.**
+- With exact labels and a log reward, the advantage over EI is clearly non-zero and luck-corrected. About half of it is context-dependent: which arm to follow depends on the state and task.
+- At d = 2 it is mostly polishing efficiency, not basin discovery.
+- It is privileged: an upper bound for a belief-based policy.
+
+**Verdict: GO** (pre-registered rule on the arms' H₃; recorded with `decide`).
+
+**Next.** Can the belief find it? Two parts:
+1. the static part, a better default arm than EI under log regret, which needs no prediction;
+2. a value model or belief rollouts per (arm, k), trained on these exact labels, with conservative acceptance against EI and the best static arm (0008 §4 step 3).
+
+Then d = 4, where basin discovery should matter more.

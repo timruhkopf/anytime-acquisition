@@ -1,0 +1,21 @@
+{
+ "id": "pilot_20261112-111235",
+ "experiment": "option_headroom",
+ "stage": "pilot",
+ "kind": "grid",
+ "command": "just sweep detached pilot experiment=option_headroom task.d=2",
+ "overrides": [
+  "experiment=option_headroom",
+  "task.d=2"
+ ],
+ "backend": "detached",
+ "commit": "190c3a11d18bf2a0d6d55b886da2c2fa9244ea49",
+ "branch": "HEAD",
+ "tag": "sweep/option_headroom/pilot_20261112-111235",
+ "allow_dirty": false,
+ "dirty_paths": [],
+ "editable_dependencies": {},
+ "host": "ulysses",
+ "created": "2026-11-12T11:12:35",
+ "n_members": 1
+}
