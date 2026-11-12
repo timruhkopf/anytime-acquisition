@@ -10,7 +10,8 @@ One member = one d. At the labeled states of a round-1 label set (pinned by sha2
 - test 1 (E3/E4): per labeled candidate, the label and PFN scores (log EI, PI) at the BO context; per state, the
   gap to f* in PFN bins.
 
-Tables: `points` (one row per state x design x point), `cands` (one row per labeled candidate), `states`,
+Artifact `points.parquet` (one row per state x design x point). Tables: `pit_hist`, `reliability`, `by_t`,
+`by_stratum` (aggregates of the points), `cands` (one row per labeled candidate), `states`,
 `calibration` (by design and point type, bootstrap CIs over states), `contrasts` (BO - random, paired over
 states), `strata` (test 1, by gap stratum).
 """
@@ -304,6 +305,63 @@ def strata_table(C: pd.DataFrame, St: pd.DataFrame, L: dict, S: int, B: int) -> 
     return pd.DataFrame(rows)
 
 
+def aggregate_points(P: pd.DataFrame, St: pd.DataFrame, ks: list[int]) -> dict[str, pd.DataFrame]:
+    """Small tables of the per-point scores for the notebook: PIT histograms (`pit_hist`), reliability-diagram
+    deciles (`reliability`), calibration by step t (`by_t`, a function of the context) and, descriptive only, by gap
+    stratum (`by_stratum`, conditioned on f*)."""
+    P = P.merge(St[["state", "stratum"]], on="state")
+    P["t_bin"] = np.array(["0-4", "5-9", "10-14", "15-19"])[np.clip(P.t.to_numpy() // 5, 0, 3)]
+    hist, rel = [], []
+    for des in DESIGNS:
+        for pt in ("all", "uniform", "local", "ei_pick"):
+            D = cast(pd.DataFrame, P.loc[(P.design == des) & ((P.ptype == pt) | (pt == "all"))])
+            for target, col in (("y", "pit"), ("f", "pit_f")):
+                dens, _ = np.histogram(D[col], bins=20, range=(0, 1), density=True)
+                hist.append(
+                    pd.DataFrame({"design": des, "ptype": pt, "target": target, "bin": np.arange(20), "density": dens})
+                )
+            for k in ks:
+                order = np.argsort(D[f"p_k{k}"].to_numpy(), kind="stable")
+                dec = np.empty(len(D), dtype=int)
+                for i, part in enumerate(np.array_split(order, 10)):
+                    dec[part] = i
+                g = D.assign(decile=dec).groupby("decile")
+                g = g.agg(p=(f"p_k{k}", "mean"), o=(f"o_k{k}", "mean"), n=(f"p_k{k}", "size")).reset_index()
+                rel.append(g.assign(design=des, ptype=pt, k=k))
+
+    def cov(x: pd.Series, half: float) -> float:
+        return float((np.abs(x - 0.5) <= half).mean())
+
+    by_t = (
+        P.groupby(["design", "ptype", "t_bin"])
+        .agg(
+            cov90=("pit", lambda x: cov(x, 0.45)),
+            cov50=("pit", lambda x: cov(x, 0.25)),
+            p_k0=("p_k0", "mean"),
+            o_k0=("o_k0", "mean"),
+            n=("pit", "size"),
+        )
+        .reset_index()
+    )
+    by_t["citl_k0"] = by_t.p_k0 - by_t.o_k0
+    by_stratum = (
+        P.groupby(["stratum", "design", "ptype"])
+        .agg(
+            log_density=("log_density", "mean"),
+            log_density_f=("log_density_f", "mean"),
+            cov90=("pit", lambda x: cov(x, 0.45)),
+            n=("pit", "size"),
+        )
+        .reset_index()
+    )
+    return {
+        "pit_hist": pd.concat(hist, ignore_index=True),
+        "reliability": pd.concat(rel, ignore_index=True),
+        "by_t": by_t,
+        "by_stratum": by_stratum,
+    }
+
+
 def pfn_bo_inference(cfg: DictConfig, run: Run) -> float:
     t = cfg.task
     seed_everything(cfg.seed)
@@ -328,8 +386,9 @@ def pfn_bo_inference(cfg: DictConfig, run: Run) -> float:
     cal, con = calibration_tables(P, ks, int(t.n_boot))
     strata = strata_table(C, St, L, S, int(t.n_boot))
     run.log_summary(**{"time/analysis_s": time.time() - t0})
+    P.to_parquet(run.artifacts / "points.parquet")  # per point: an artifact (too large for a result table)
     for name, df in (
-        ("points", P),
+        *aggregate_points(P, St, ks).items(),
         ("cands", C),
         ("states", St),
         ("calibration", cal),

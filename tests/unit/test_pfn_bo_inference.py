@@ -91,8 +91,8 @@ def test_pipeline_end_to_end(tmp_path: Path) -> None:
     run = Run(tmp_path / "pbi")
     pfn_bo_inference(cfg, run)
     tables = {p.stem: pd.read_parquet(p) for p in (run.artifacts / "tables").glob("*.parquet")}
-    assert {"points", "cands", "states", "calibration", "contrasts", "strata"} <= set(tables)
-    P = tables["points"]
+    assert {"cands", "states", "calibration", "contrasts", "strata", "pit_hist", "reliability", "by_t"} <= set(tables)
+    P = pd.read_parquet(run.artifacts / "points.parquet")
     assert len(P) == 12 * 2 * 7 and set(P.design) == {"bo", "random"}
     assert bool(P.pit.between(0, 1).all())
     # the uniform points are shared by both designs: the truth agrees row by row

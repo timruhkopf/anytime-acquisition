@@ -1,0 +1,23 @@
+{
+ "id": "sanity_20261112-083516",
+ "experiment": "pfn_bo_inference",
+ "stage": "sanity",
+ "kind": "grid",
+ "command": "just sweep detached sanity experiment=pfn_bo_inference task.d=2 task.n_states=200 task.n_boot=50",
+ "overrides": [
+  "experiment=pfn_bo_inference",
+  "task.d=2",
+  "task.n_states=200",
+  "task.n_boot=50"
+ ],
+ "backend": "detached",
+ "commit": "03d8de282ce24707a3ef1120983b8ab93739a80c",
+ "branch": "HEAD",
+ "tag": "sweep/pfn_bo_inference/sanity_20261112-083516",
+ "allow_dirty": false,
+ "dirty_paths": [],
+ "editable_dependencies": {},
+ "host": "ulysses",
+ "created": "2026-11-12T08:35:16",
+ "n_members": 1
+}

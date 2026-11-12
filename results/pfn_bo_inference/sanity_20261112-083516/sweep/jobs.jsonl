@@ -1,0 +1,1 @@
+{"member": 0, "overrides": ["experiment=pfn_bo_inference", "task.d=2", "task.n_states=200", "task.n_boot=50"]}
