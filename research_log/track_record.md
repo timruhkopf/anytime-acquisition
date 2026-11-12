@@ -293,3 +293,9 @@ These are scratch checks (`uv run`, not tracked), run on 200 of the pinned label
 - Post hoc (scratch on the run artifact `labels.pt`): with EI's terminal regret as a privileged feature the same pipeline gains +0.147 [0.109, 0.183] over static. The missing piece is predicting from context whether EI will end badly.
 - Verified: notebook 13 executed on the snapshot, numbers re-read from cell outputs and the `summary` table; tests pass.
 - Open: `just decide ... INCONCLUSIVE` not yet run (blocked in the session); the MES-base run was not launched.
+
+### 2026-11-12 16:05 — mandate for the night (autonomous until 2026-11-13 07:30)
+
+- Tim: "i'll leave until tomorrow morning 7:30, so until then do both and give me your conclusions (including standalone notebooks that record the experiment's analysis)".
+- "Both" = (1) can EI's failure be predicted from the context, and does gating the UCB schedule with it beat the static schedule; (2) repeated decisions.
+- Allowed: new experiments under `experimental/`, sanity and pilot launches on ulysses (idle), each with a stated ETA. No selection on split 1.

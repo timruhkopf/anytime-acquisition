@@ -144,6 +144,7 @@ def test_pipeline_end_to_end(tmp_path: Path) -> None:
     assert len(per) == 12 and {"nomes/belief/mlp", "all/pfn/mlp", "all/belief/ridge", "nomes/static"} <= set(
         summ.variant
     )
+    assert bool((per["full:base0"].to_numpy() == R[:, 0, 0, 0].numpy()).all()) and "full:mes_rest1" in per
     v = "nomes/belief/mlp"
     assert not per[f"{v}:option"].str.startswith("mes").any()  # the portfolio excludes MES
     never = per[f"{v}:j"] < 0

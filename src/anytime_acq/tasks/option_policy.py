@@ -238,6 +238,10 @@ def evaluate(L: dict, cfg: DictConfig, run: Run) -> pd.DataFrame:
             st = np.where(j >= 0, np.asarray(L["steps"])[jc], -1).tolist()
             for (step, op), n in Counter(zip(st, cols[f"{v}:option"].tolist(), strict=True)).items():
                 usage_rows.append({"variant": v, "fold": -1, "step": step, "option": op, "n": n})
+    if L["steps"][0] == 0:  # full runs of the base and of every static arm ("a for the rest" from t = 0), raw regret
+        full = {f"full:base{s}": R[:, 0, 0, s] for s in (0, 1)}
+        full |= {f"full:{n}{s}": R[:, 0, o + 1, s] for o, n in enumerate(names) if n.endswith("_rest") for s in (0, 1)}
+        per = pd.concat([per, pd.DataFrame(full)], axis=1)
     summary = summarize(per, variants, int(t.n_boot))
     run.log_table("summary", summary)
     run.log_table("per_task", per)
