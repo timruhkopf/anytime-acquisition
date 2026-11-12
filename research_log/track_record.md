@@ -239,3 +239,17 @@ tests (template hook incident).
   - E3 not supported: log EI Spearman 0.04–0.05 in the ≥ 10-bin strata.
   - E4 does not explain the headroom: the 57% of states with gap < 1 bin carry 2.1% of it, while the ≥ 10-bin strata carry 88%.
 - Next: 0007 test 3, a variance-reduced lookahead at the large-gap states.
+
+### 2026-11-12 — scratch checks: f\* is correct; P0 at d = 2 is easy for EI
+
+These are scratch checks (`uv run`, not tracked), run on 200 of the pinned label tasks (every 20th state of `api_round1/pilot_20261111-133311` labels.pt, sha256 c27d8939…).
+
+- **f\* is not the cause.**
+  - A 16× stronger search (65536 Sobol points plus 64×500 Adam steps) never improves on the stored f\* by more than 1e-6. It improves at all in 7.5% of the tasks.
+  - The share of states within one bin of f\* is unchanged at 0.625.
+  - By step t: 0.26 (t < 5), 0.59, 0.80, 0.78 (t ≥ 15).
+- **The tasks are easy.**
+  - 47% of the tasks are effectively 1-D: each dimension is irrelevant with probability 0.3.
+  - Share of the domain within one bin of f\*: median 0.54% (1-D tasks 1.9%, 2-D tasks 0.07%).
+  - Within 10 bins: median 3.9%. Within 100 bins: 27%.
+- y on the ECDF scale is not quantized: 0.01% of the values lie on a 0.001 grid.
