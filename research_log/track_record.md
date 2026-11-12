@@ -283,3 +283,13 @@ These are scratch checks (`uv run`, not tracked), run on 200 of the pinned label
 - At d = 2 the gain is mostly polishing, not basin discovery.
 - Plot of tasks and trajectories (scratch): about half the tasks are 1-D valleys; 2-D tasks have a median of 12 local minima.
 - Verified: notebook numbers re-read from cell outputs; the two descent settings agree 100%; tests pass (70).
+
+### 2026-11-12 15:50 — option_policy pilot: INCONCLUSIVE by the pre-registered rule (snapshot pilot_20261112-123724)
+
+- Mandate (Tim): discover a non-static, context-dependent rule; EI base, MES outside the primary options; "prepare your changes and run on ulysses a comprehensive experiment".
+- Ran on ulysses: the sanity run (12:30, 6 min) and the pilot (12:37–14:39, 2000 tasks, code c36d0c3).
+- The deployable one-deviation policy beats EI by +0.135 [0.096, 0.174] log10, but the best static schedule (UCB for the rest from t = 2) already gives +0.119; policy over static +0.017 [−0.018, 0.050].
+- The context is used (+0.043 [0.020, 0.066] over the shuffled null) without exceeding the schedule. Privileged headroom 0.346.
+- Post hoc (scratch on the run artifact `labels.pt`): with EI's terminal regret as a privileged feature the same pipeline gains +0.147 [0.109, 0.183] over static. The missing piece is predicting from context whether EI will end badly.
+- Verified: notebook 13 executed on the snapshot, numbers re-read from cell outputs and the `summary` table; tests pass.
+- Open: `just decide ... INCONCLUSIVE` not yet run (blocked in the session); the MES-base run was not launched.
