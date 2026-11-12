@@ -210,3 +210,16 @@ tests (template hook incident).
 2. Should the label change from one-step-deviation advantages to multi-step or terminal returns? The policy-iteration loop would then not hinge on a one-step improvement over EI.
 3. Would a noisy prior or a higher d (Phase B; the noisy PFN lives in pfn-repro) open headroom that the belief can see?
 4. Should external baselines (ZeroShotOpt retrained on our prior, GP-Hedge) wait until one of 1–3 gives a positive signal?
+
+### 2026-11-12 — correction: the gate's lookahead was noise-dominated; decision 0007 (explanations and tests)
+
+- This corrects the 2026-11-11 22:05 entry and api_gate §2. Scratch checks on the pinned labels and the gate's `gate_states`, reproduced in the next experiment:
+  - in matching units (% of the gap), the PFN-lookahead advantage has sd 14.2, with a Monte-Carlo noise sd of 20.1 at M = 4;
+  - its estimated signal is ≤ 0 and its calibration slope is −0.001 [−0.005, 0.001].
+- The gate therefore did not measure the posterior-expected advantage, and "the headroom is not in the belief" is not established by it.
+- The gate's decisions are unaffected by the units: they are invariant to a positive per-state scale.
+- Resolution:
+  - pfn_large has 1000 uniform bins of width 0.001;
+  - in 57% of labeled states the incumbent is within one bin of f\*;
+  - 91% of the labeled advantages are smaller than one bin.
+- The explanations (E1 irreducible, E2 PFN error, E3 resolution, E4 label metric) and the tests that tell them apart: `research_log/decisions/0007-why-the-headroom-is-not-in-the-belief.md`.
