@@ -13,4 +13,5 @@ Session diary: [track_record.md](track_record.md) · backlog: GitHub issues labe
 | [2026-11-11_api-probe](entries/2026-11-11_api-probe.md) | `api_probe` | pilot `pilot_20261111-163954`: **INCONCLUSIVE**<br>pilot `pilot_20261111-204422`: **INCONCLUSIVE** |
 | [2026-11-11_api-round1](entries/2026-11-11_api-round1.md) | `api_round1` | pilot `pilot_20261111-133311`: **NO_GO** |
 | [2026-11-12_ei-opt](entries/2026-11-12_ei-opt.md) | `ei_opt` | pilot `pilot_20261112-091043`: **INCONCLUSIVE** |
+| [2026-11-12_option-headroom](entries/2026-11-12_option-headroom.md) | `option_headroom` | pilot `pilot_20261112-111235`: **GO** |
 | [2026-11-12_pfn-bo-inference](entries/2026-11-12_pfn-bo-inference.md) | `pfn_bo_inference` | pilot `pilot_20261112-084114`: **GO** |

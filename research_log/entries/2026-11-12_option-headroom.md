@@ -1,6 +1,14 @@
 ---
 experiment: option_headroom
-sweeps: []
+sweeps:
+- id: pilot_20261112-111235
+  stage: pilot
+  commit: 190c3a11d18b
+  decision: GO
+  reason: arms H3 0.195 [0.148,0.244] log10 (nulls -0.007); context-dependent part
+    0.109 [0.070,0.150]; robust at eps 1e-5
+  members: 1/1 done
+  decided: '2026-11-12'
 ---
 # Where is the headroom over EI? Basin decomposition of static arms and luck-corrected option labels
 

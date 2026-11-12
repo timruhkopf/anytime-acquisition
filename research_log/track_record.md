@@ -271,3 +271,15 @@ These are scratch checks (`uv run`, not tracked), run on 200 of the pinned label
   - the pitfalls and scaling of privileged basin labels;
   - the new order of work: decompose by basin, exact option labels (arm for k steps, then π₀), then the belief.
 - The candidate-level relabeling round proposed earlier today is paused.
+
+### 2026-11-12 11:55 — option_headroom pilot decided GO (snapshot pilot_20261112-111235)
+
+- Mandate (Tim): plan and run experiments that give an actual signal for policy improvement.
+- Ran on ulysses: the sanity run (11:07, 3 min), a revision (ε 1e-6, static comparator), and the pilot (11:12, 26 min).
+- First non-zero, luck-corrected advantage over EI in this line of work:
+  - option headroom H₃ = 0.195 [0.148, 0.244] log10 (about 36% less regret), against nulls −0.007;
+  - context-dependent part 0.109 [0.070, 0.150]; static part 0.086 [0.043, 0.134].
+- EI is not the best static arm under log regret: MES and UCB(0.995) are better.
+- At d = 2 the gain is mostly polishing, not basin discovery.
+- Plot of tasks and trajectories (scratch): about half the tasks are 1-D valleys; 2-D tasks have a median of 12 local minima.
+- Verified: notebook numbers re-read from cell outputs; the two descent settings agree 100%; tests pass (70).
