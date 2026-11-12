@@ -1,0 +1,24 @@
+{
+ "id": "sanity_20261112-110719",
+ "experiment": "option_headroom",
+ "stage": "sanity",
+ "kind": "grid",
+ "command": "just sweep detached sanity experiment=option_headroom task.d=2 task.part_a.n_tasks=50 task.part_b.n_tasks=60 task.n_boot=200",
+ "overrides": [
+  "experiment=option_headroom",
+  "task.d=2",
+  "task.part_a.n_tasks=50",
+  "task.part_b.n_tasks=60",
+  "task.n_boot=200"
+ ],
+ "backend": "detached",
+ "commit": "d90eda497309b9f182e8f43d89240059b01bed3a",
+ "branch": "HEAD",
+ "tag": "sweep/option_headroom/sanity_20261112-110719",
+ "allow_dirty": false,
+ "dirty_paths": [],
+ "editable_dependencies": {},
+ "host": "ulysses",
+ "created": "2026-11-12T11:07:19",
+ "n_members": 1
+}

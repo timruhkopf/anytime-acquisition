@@ -15,7 +15,7 @@ part_b: {split: 4, task_offset: 20000, n_tasks: 800, t_max: 15}   # fresh label 
 task_draw: {n_dense: 16384, n_refine: 16, refine_steps: 200}
 descent: {steps: 300, lr: 0.003, check_steps: 600, check_lr: 0.001, chunk: 65536}
 deltas: [1, 10]          # good basin: descended value within delta PFN bins of f*
-eps: 1.0e-7              # log10(regret + eps); below f*'s accuracy at d = 2 (track record 2026-11-12)
+eps: 1.0e-6              # log10(regret + eps); f*'s accuracy at d = 2 (sanity: 1e-7 let lanes that set f* get -7)
 primary_k: 3
 worthwhile_log10: 0.022  # = 5% less regret
 n_boot: 2000

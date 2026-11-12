@@ -32,11 +32,42 @@ def crossfit_per_state(M: pd.DataFrame, k: int, fam: str) -> pd.DataFrame:
     return pd.DataFrame({"H": H, "oracle": oracle, "deviates": dev})
 
 
+def static_per_state(M: pd.DataFrame, k: int, fam: str = "arms") -> pd.Series:
+    """Per state: the best *single* option (one option for all states: the best mean advantage on one seed, or no
+    deviation if that mean is <= 0), scored on the other seed, averaged over both directions. The static part of
+    the headroom: what always switching to one arm for k steps gains."""
+    sub = M[(M.k == k) & (M.option != "base") & (M.arm.map(family) == fam)]
+    P = sub.pivot_table(index=["state", "rep"], columns="option", values="adv").unstack("rep")
+    reps = sorted(sub.rep.unique())
+    a, b = (P.xs(r, axis=1, level="rep") for r in reps)
+    out = []
+    for sel, sc in ((a, b), (b, a)):
+        m = sel.mean(axis=0)
+        out.append(sc[m.idxmax()] if float(m.max()) > 0 else pd.Series(0.0, index=sc.index))
+    return (out[0] + out[1]) / 2
+
+
+def with_eps(M: pd.DataFrame, eps: float, bin_width: float = 1e-3) -> pd.DataFrame:
+    """M with log_regret and adv recomputed for floor eps (regret is stored raw, in PFN bins)."""
+    M = M.copy()
+    M["log_regret"] = np.log10(M.regret_bins * bin_width + eps)
+    base = M[M.option == "base"].set_index(["state", "rep"]).log_regret
+    M["adv"] = base.loc[list(zip(M.state, M.rep, strict=True))].to_numpy() - M.log_regret.to_numpy()
+    return M
+
+
 def crossfit_table(M: pd.DataFrame, ks: list[int], n_boot: int) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """-> (headroom per k and family, with the arms - nulls contrast; per-option summary)."""
+    """-> (headroom per k and family, with the arms - nulls contrast, the best single option ("static") and the
+    context-dependent part (arms - static); per-option summary)."""
     rows = []
     for k in ks:
         per = {f: crossfit_per_state(M, k, f) for f in ("arms", "nulls")}
+        st = static_per_state(M, k)
+        lo, hi = bootstrap_ci(st.to_numpy(), n_boot=n_boot)
+        rows.append({"k": k, "family": "static", "H": float(st.mean()), "lo": lo, "hi": hi})
+        ctx = (per["arms"].H - st).to_numpy()
+        lo, hi = bootstrap_ci(ctx, n_boot=n_boot)
+        rows.append({"k": k, "family": "arms-static", "H": float(ctx.mean()), "lo": lo, "hi": hi})
         for f, d in per.items():
             lo, hi = bootstrap_ci(d.H.to_numpy(), n_boot=n_boot)
             olo, ohi = bootstrap_ci(d.oracle.to_numpy(), n_boot=n_boot)

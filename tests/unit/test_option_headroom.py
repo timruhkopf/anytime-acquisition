@@ -9,7 +9,7 @@ import torch
 from hydra import compose, initialize_config_module
 from pfn_repro.checkpoints import load
 
-from anytime_acq.analysis.options import crossfit_per_state, option_verdict
+from anytime_acq.analysis.options import crossfit_per_state, option_verdict, static_per_state, with_eps
 from anytime_acq.bo.engine import CandidateConfig, Engine
 from anytime_acq.bo.tasks import draw_tasks
 from anytime_acq.experimental.options import DescentSpec, arm_pick, descend, seeded_candidates
@@ -66,6 +66,18 @@ def test_crossfit_removes_selection_luck() -> None:
     assert real.H.mean() > 0.9
 
 
+def test_static_part_and_eps() -> None:
+    g = np.random.default_rng(1)
+    signal = np.zeros((300, 4))
+    signal[:, 1] = 1.0  # one option is better everywhere: all of the headroom is static
+    M = _M(signal + 0.05 * g.normal(size=(300, 4)), signal + 0.05 * g.normal(size=(300, 4)))
+    st = static_per_state(M, 3)
+    H = crossfit_per_state(M, 3, "arms").H
+    assert abs(float(st.mean()) - 1.0) < 0.05 and abs(float((H - st).mean())) < 0.05
+    B = pd.DataFrame({"state": [0, 0], "rep": [0, 0], "option": ["base", "o"], "regret_bins": [0.0, 1.0]})
+    assert with_eps(B, 1e-6).adv.iloc[1] == np.log10(1e-6) - np.log10(1e-3 + 1e-6)
+
+
 def test_verdict() -> None:
     h = lambda H, lo, hi: pd.DataFrame([{"family": "arms", "k": 3, "H": H, "lo": lo, "hi": hi}])  # noqa: E731
     assert option_verdict(h(0.05, 0.01, 0.09), 3, 0.022) == "GO"
@@ -108,4 +120,4 @@ def test_pipeline_end_to_end(tmp_path: Path) -> None:
     assert bool((B.loc[B.option == "base", "adv"] == 0).all())
     # options that never disagree with EI and are EI afterwards have advantage 0 exactly
     assert bool((B.loc[~B.disagree & (B.k == 1), "adv"].abs() < 1e-9).all())
-    assert set(tables["headroom"].family) == {"arms", "nulls", "arms-nulls"}
+    assert set(tables["headroom"].family) == {"arms", "nulls", "arms-nulls", "static", "arms-static"}
