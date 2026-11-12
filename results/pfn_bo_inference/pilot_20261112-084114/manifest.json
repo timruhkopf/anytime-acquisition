@@ -1,0 +1,28 @@
+{
+ "id": "pilot_20261112-084114",
+ "experiment": "pfn_bo_inference",
+ "stage": "pilot",
+ "kind": "grid",
+ "command": "just sweep detached pilot experiment=pfn_bo_inference task.d=2",
+ "overrides": [
+  "experiment=pfn_bo_inference",
+  "task.d=2"
+ ],
+ "backend": "detached",
+ "commit": "3c475a72bd0a2cde8cb7cb030c991c09a8c34724",
+ "branch": "HEAD",
+ "tag": "sweep/pfn_bo_inference/pilot_20261112-084114",
+ "allow_dirty": false,
+ "host": "ulysses",
+ "created": "2026-11-12T08:41:14",
+ "editable_dependencies": {},
+ "status_counts": {
+  "DONE": 1
+ },
+ "first_start": "2026-11-12T08:41:16",
+ "last_end": "2026-11-12T08:42:49",
+ "wall_h": 0.026,
+ "device_h": 0.0,
+ "snapshot_created": "2026-11-12T08:43:13",
+ "sweep_dir": "runs/pfn_bo_inference/pilot_20261112-084114"
+}
