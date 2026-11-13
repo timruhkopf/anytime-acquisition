@@ -279,9 +279,8 @@ def evaluate(cfg: DictConfig, engine: Engine, branch: AcqBranch, run: Run) -> pd
     keys = ["run", "step", "query_set", "arm"]
     cols = ["top1", "good", "ok5", "rank_pct", "gap", "spearman", "spearman_top"]
     grouped = states.astype({"good": float, "ok5": float}).groupby(keys)
-    agree = grouped[cols].mean()
-    agree["n_states"] = grouped.size().to_numpy()
-    agree = agree.reset_index()
+    agree = pd.DataFrame(grouped[cols].mean()).reset_index()
+    agree = agree.assign(n_states=grouped.size().to_numpy())
     closed = pd.concat(cl_rows, ignore_index=True)
     cur = [
         {"arm": arm, "policy": name, "step": i, "log_regret": float(v), "n_tasks": len(torch.cat(parts))}
