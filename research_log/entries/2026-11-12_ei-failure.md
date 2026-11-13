@@ -1,6 +1,14 @@
 ---
 experiment: ei_failure
-sweeps: []
+sweeps:
+- id: pilot_20261113-075212
+  stage: pilot
+  commit: daaa02374c18
+  decision: NO_GO
+  reason: gate on the predicted EI outcome equals the static schedule (+0.000); luck-corrected
+    ceiling +0.038 [0.008, 0.067]
+  members: 1/1 done
+  decided: '2026-11-13'
 ---
 # Can the context predict how EI's run ends, and does gating the UCB deviation by it beat the static schedule?
 

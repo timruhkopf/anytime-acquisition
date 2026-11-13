@@ -5,6 +5,7 @@ from collections.abc import Callable
 from omegaconf import DictConfig
 
 from ..tracking.sink import Run
+from .acq_distill import acq_distill
 from .api import api
 from .api_decoder import api_decoder
 from .api_gate import api_gate
@@ -29,6 +30,7 @@ TASKS: dict[str, Pipeline] = {
     "option_headroom": option_headroom,
     "option_policy": option_policy,
     "ei_failure": ei_failure,
+    "acq_distill": acq_distill,
     "pfn_bo_inference": pfn_bo_inference,
     "toy_regression": toy_regression,  # the template's example; its own tests (`experiment=debug`) use it
 }

@@ -1,0 +1,8 @@
+# @package _global_
+# Can an acquisition branch on the frozen PFN reproduce every arm's ranking? Per-arm distillation (issue #13,
+# decision 0009). Pre-registration: notebooks/16_2026-11-13_acq_distill.ipynb. One member per d (task.d=1,2,4).
+defaults:
+  - override /task: acq_distill
+
+task:
+  d: 2
