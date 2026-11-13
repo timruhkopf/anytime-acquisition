@@ -74,6 +74,20 @@ def test_branch_learns_a_ranking() -> None:
     assert all(not p.requires_grad or p.grad is None for p in pfn.parameters())  # the PFN gets no gradient
 
 
+def test_branch_options_run_and_marker_does_not_touch_the_readout() -> None:
+    eng = _engine()
+    g = torch.Generator().manual_seed(2)
+    X, Y = torch.rand(3, 5, 2, generator=g), torch.rand(3, 5, generator=g)
+    xq = torch.rand(3, 9, 2, generator=g)
+    spec = BranchSpec(width=32, heads=2, post=2, y_in=True, inc_token=True, aligned=True, query_state=True)
+    br = AcqBranch(64, 4, 6, 3, spec)
+    assert len(br.blocks) == 6
+    s = branch_scores(br, eng, X, Y, xq, budget_features(1, 8, 5, 3, "cpu"))
+    assert s.shape == (3, 9, 3) and bool(torch.isfinite(s).all())
+    s.sum().backward()
+    assert all(p.grad is not None for n, p in br.named_parameters() if n.endswith(".inc"))
+
+
 def test_verdict() -> None:
     def s(good: float, diff: float) -> pd.DataFrame:
         return pd.DataFrame({"arm": ["a", "b"], "cand0:good_pick": [0.99, good], "cl:diff": [0.0, diff]})

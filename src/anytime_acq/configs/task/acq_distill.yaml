@@ -6,7 +6,9 @@ pfn: pfn_large
 shape: {d1: [3, 15], d2: [4, 20], d4: [8, 40]}   # d -> [n_init, T]; context size <= 48
 candidates: {n_sobol: 1024, n_local: 64, local_sigmas: [0.01, 0.05, 0.2]}
 arms: [ei, pi0.01, ucb0.995, mes, mean]   # one output column per arm
-branch: {width: 192, heads: 4, ff_mult: 2, read: null, self_attn: true, query_state: false, dropout: 0.0}
+branch:
+  {width: 192, heads: 4, ff_mult: 2, read: null, self_attn: true, query_state: false, dropout: 0.0,
+   post: 0, y_in: false, inc_token: false, aligned: false}   # see experimental/acq_branch.py::BranchSpec
 train:
   tasks: {split: 4, task_offset: 60000, n_tasks: 1500}
   cand_seed: 2           # candidate seed of the arms' training runs (the deployment seed is 0)

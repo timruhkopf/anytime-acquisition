@@ -8,6 +8,10 @@ The PFN is not changed. A second, trainable stream runs beside it:
 - *query tokens*, one per candidate x, start from the candidate's location and the budget. In block b each
   cross-attends to the acquisition tokens of that block (the PFN's own train/test pattern, on the branch), then a
   feed-forward layer. Queries do not see each other: the score of x depends on the data and x only;
+- optional (`BranchSpec`): `post` extra blocks after the PFN's last layer (self-attention among the acquisition
+  tokens only, queried like the others); `y_in` (tokens also start from y); `inc_token` (a learned marker on the
+  incumbent's token, added to the self-attention input only, so it does not change what is read from the PFN);
+  `aligned` (each token also reads its own PFN token directly);
 - *output*: one score per arm and query (`n_out` columns). Scores are only meaningful as a ranking over x.
 
 `query_state=True` (ablation) also gives each query the PFN's final query-token state at x.
@@ -47,15 +51,23 @@ class BranchSpec:
     read: tuple[int, ...] | None = None  # PFN layers read by the blocks (1..L); None = every layer
     self_attn: bool = True
     query_state: bool = False
+    post: int = 0  # extra blocks after the PFN's last layer: self-attention only, queried like the others
+    y_in: bool = False  # the acquisition tokens also start from y (and y - min y)
+    inc_token: bool = False  # a learned marker on the incumbent's token, added to the self-attention input only
+    aligned: bool = False  # each token also reads its own PFN token directly (beside the cross-attention)
     dropout: float = 0.0
 
 
 class _Block(nn.Module):
-    def __init__(self, s: BranchSpec, d_pfn: int):
+    def __init__(self, s: BranchSpec, d_pfn: int, read: bool = True):
         super().__init__()
         w = s.width
-        self.mem_ln, self.mem_proj = nn.LayerNorm(d_pfn), nn.Linear(d_pfn, w)
-        self.ln_x, self.xattn = nn.LayerNorm(w), nn.MultiheadAttention(w, s.heads, s.dropout, batch_first=True)
+        self.read = read
+        if read:
+            self.mem_ln, self.mem_proj = nn.LayerNorm(d_pfn), nn.Linear(d_pfn, w)
+            self.ln_x, self.xattn = nn.LayerNorm(w), nn.MultiheadAttention(w, s.heads, s.dropout, batch_first=True)
+            self.align = nn.Linear(d_pfn, w) if s.aligned else None
+        self.inc = nn.Parameter(torch.zeros(w)) if s.inc_token else None
         self.self_attn = s.self_attn
         if s.self_attn:
             self.ln_s, self.sattn = nn.LayerNorm(w), nn.MultiheadAttention(w, s.heads, s.dropout, batch_first=True)
@@ -66,12 +78,23 @@ class _Block(nn.Module):
         self.ln_qf = nn.LayerNorm(w)
         self.qff = nn.Sequential(nn.Linear(w, s.ff_mult * w), nn.GELU(), nn.Linear(s.ff_mult * w, w))
 
-    def context(self, a: Tensor, z: Tensor) -> Tensor:
-        m = self.mem_proj(self.mem_ln(z))
-        h = self.ln_x(a)
-        a = a + self.xattn(h, m, m, need_weights=False)[0]
+    def context(self, a: Tensor, z: Tensor | None, inc: Tensor) -> Tensor:
+        """a [B, n + 1, w] (last = budget token), z [B, n, d_pfn] or None, inc [B] index of the incumbent."""
+        if self.read:
+            assert z is not None
+            zn = self.mem_ln(z)
+            m = self.mem_proj(zn)
+            h = self.ln_x(a)
+            a = a + self.xattn(h, m, m, need_weights=False)[0]
+            if self.align is not None:
+                a = torch.cat([a[:, :-1] + self.align(zn), a[:, -1:]], 1)
         if self.self_attn:
-            h = self.ln_s(a)
+            h = a
+            if self.inc is not None:
+                mark = torch.zeros_like(a)
+                mark[torch.arange(len(a), device=a.device), inc] = self.inc
+                h = a + mark
+            h = self.ln_s(h)
             a = a + self.sattn(h, h, h, need_weights=False)[0]
         return a + self.ff(self.ln_f(a))
 
@@ -94,22 +117,29 @@ class AcqBranch(nn.Module):
         self.budget_tok = nn.Sequential(nn.Linear(N_BUDGET, w), nn.GELU(), nn.Linear(w, w))
         self.budget_q = nn.Sequential(nn.Linear(N_BUDGET, w), nn.GELU(), nn.Linear(w, w))
         self.zq = nn.Sequential(nn.LayerNorm(d_pfn), nn.Linear(d_pfn, w)) if s.query_state else None
-        self.blocks = nn.ModuleList([_Block(s, d_pfn) for _ in self.read])
+        self.yemb = nn.Linear(2, w) if s.y_in else None
+        self.blocks = nn.ModuleList(
+            [_Block(s, d_pfn) for _ in self.read] + [_Block(s, d_pfn, read=False) for _ in range(s.post)]
+        )
         self.out = nn.Sequential(nn.LayerNorm(w), nn.Linear(w, w), nn.GELU(), nn.Linear(w, n_out))
 
     def _x(self, x: Tensor) -> Tensor:
         nf = torch.full((len(x),), x.shape[-1], device=x.device, dtype=torch.long)
         return _pad_and_rescale_features(x, self.max_x_dim, nf)
 
-    def encode(self, Z: Tensor, X: Tensor, budget: Tensor) -> list[Tensor]:
-        """Z [B, L+1, n, d_pfn] (`probes.context_states`), X [B, n, d], budget [B, 3] -> the acquisition tokens
-        after every block ([B, n + 1, width] each; the last token is the budget token)."""
+    def encode(self, Z: Tensor, X: Tensor, Y: Tensor, budget: Tensor) -> list[Tensor]:
+        """Z [B, L+1, n, d_pfn] (`probes.context_states`), X [B, n, d], Y [B, n], budget [B, 3] -> the acquisition
+        tokens after every block ([B, n + 1, width] each; the last token is the budget token)."""
         d = X.shape[-1]
         a = self.loc(self._x(X)) + self.dim_emb.weight[d]
+        if self.yemb is not None:
+            a = a + self.yemb(torch.stack([Y, Y - Y.min(1, keepdim=True).values], -1))
         a = torch.cat([a, self.budget_tok(budget)[:, None]], 1)
+        inc = Y.argmin(1)
+        layers: list[int | None] = [*self.read, *([None] * self.spec.post)]
         mem = []
-        for blk, layer in zip(self.blocks, self.read, strict=True):
-            a = cast(_Block, blk).context(a, Z[:, layer])
+        for blk, layer in zip(self.blocks, layers, strict=True):
+            a = cast(_Block, blk).context(a, Z[:, layer] if layer is not None else None, inc)
             mem.append(a)
         return mem
 
@@ -145,7 +175,7 @@ def branch_scores(
     for a in range(0, len(X), chunk):
         s = slice(a, a + chunk)
         Z, zq = pfn_inputs(engine, X[s], Y[s], xq[s], branch.spec.query_state)
-        out.append(branch.score(branch.encode(Z, X[s], budget[s]), xq[s], budget[s], zq))
+        out.append(branch.score(branch.encode(Z, X[s], Y[s], budget[s]), xq[s], budget[s], zq))
     return torch.cat(out)
 
 

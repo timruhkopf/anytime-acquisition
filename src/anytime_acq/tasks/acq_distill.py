@@ -321,6 +321,10 @@ def acq_distill(cfg: DictConfig, run: Run) -> float:
         self_attn=bool(b["self_attn"]),
         query_state=bool(b["query_state"]),
         dropout=float(b["dropout"]),
+        post=int(b["post"]),
+        y_in=bool(b["y_in"]),
+        inc_token=bool(b["inc_token"]),
+        aligned=bool(b["aligned"]),
     )
     branch = AcqBranch(d_pfn, len(blocks), int(cast(int, pfn.max_x_dim)), len(t.arms), spec).to(t.device)
     run.log_summary(branch_params=float(sum(p.numel() for p in branch.parameters())))
