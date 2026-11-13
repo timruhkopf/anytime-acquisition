@@ -1,0 +1,29 @@
+# An in-context mixture of acquisition functions, trained by direct paired search on whole runs
+# (tasks/mixture_policy.py, experimental/mixture.py). Pre-registration: notebooks/17_2026-11-13_mixture_policy.ipynb.
+name: mixture_policy
+d: 2
+pfn: pfn_large
+n_init: 4                # d = 4 member: n_init 8
+T: 20                    # budget (steps after the initial design)
+candidates: {n_sobol: 512, n_local: 32, local_sigmas: [0.01, 0.05, 0.2]}   # half of notebooks 12-15 (speed)
+arms: [ei, pi0.01, ucb0.995, mes, mean]
+eps: 1.0e-3              # floor of the log regret in the objective: one PFN bin
+w_final: 0.5             # J = w_final * final + (1 - w_final) * mean over steps
+report_eps: [1.0e-3, 1.0e-4, 1.0e-6]
+search:
+  generations: 50        # per phase (budget-only, then context)
+  pairs: 6               # antithetic pairs per generation
+  sigma: 0.3
+  lr: 0.15
+  val_every: 5
+  init_bias: 3.0         # start: softmax logit of the best arm (weight 0.83 with 5 arms)
+train_tasks: {split: 4, task_offset: 80000, n_tasks: 512}    # 4 chunks of 128, one per generation in turn
+val_tasks: {split: 4, task_offset: 85000, n_tasks: 512}
+test_tasks: {split: 4, task_offset: 90000, n_tasks: 1536}
+task_chunk: 128
+task_draw: {n_dense: 16384, n_refine: 16, refine_steps: 200}
+worthwhile_log10: 0.022
+n_boot: 2000
+tf32: false
+device: cuda
+chunk: 256

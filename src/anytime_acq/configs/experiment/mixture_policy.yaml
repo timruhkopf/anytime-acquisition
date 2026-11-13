@@ -1,0 +1,9 @@
+# @package _global_
+# An in-context mixture of acquisition functions: does a budget- and context-dependent mixture beat every arm?
+# (issue #13). Pre-registration: notebooks/17_2026-11-13_mixture_policy.ipynb.
+# Members: task.d=2 (n_init 4) and task.d=4 task.n_init=8.
+defaults:
+  - override /task: mixture_policy
+
+task:
+  d: 2

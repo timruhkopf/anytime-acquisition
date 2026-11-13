@@ -13,6 +13,7 @@ from .api_probe import api_probe
 from .bo import bo
 from .ei_failure import ei_failure
 from .ei_opt import ei_opt
+from .mixture_policy import mixture
 from .option_headroom import option_headroom
 from .option_policy import option_policy
 from .pfn_bo_inference import pfn_bo_inference
@@ -31,6 +32,7 @@ TASKS: dict[str, Pipeline] = {
     "option_policy": option_policy,
     "ei_failure": ei_failure,
     "acq_distill": acq_distill,
+    "mixture_policy": mixture,
     "pfn_bo_inference": pfn_bo_inference,
     "toy_regression": toy_regression,  # the template's example; its own tests (`experiment=debug`) use it
 }
