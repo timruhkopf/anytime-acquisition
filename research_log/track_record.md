@@ -299,3 +299,15 @@ These are scratch checks (`uv run`, not tracked), run on 200 of the pinned label
 - Tim: "i'll leave until tomorrow morning 7:30, so until then do both and give me your conclusions (including standalone notebooks that record the experiment's analysis)".
 - "Both" = (1) can EI's failure be predicted from the context, and does gating the UCB schedule with it beat the static schedule; (2) repeated decisions.
 - Allowed: new experiments under `experimental/`, sanity and pilot launches on ulysses (idle), each with a stated ETA. No selection on split 1.
+
+### 2026-11-13 09:20 — the night was lost; ei_failure pilot NO-GO (snapshot pilot_20261113-075212)
+
+- The session stalled from 15:57 (2026-11-12) to 07:45 while waiting for the option_policy_r2 sanity run; nothing ran overnight. Tim was told at 07:50.
+- Tim recorded option_policy's pilot as INCONCLUSIVE with `just decide`.
+- ei_failure (notebook 15): sanity 07:46, pilot 07:52–09:04, 3000 fresh tasks, code daaa023.
+  - EI's terminal regret is predictable from the context (Spearman 0.46 at t = 2, 0.74 at t = 14); belief features beat data features early (+0.11 at t = 2).
+  - A gate on that prediction equals the static schedule (+0.000). The luck-corrected privileged ceiling is +0.038 [0.008, 0.067].
+  - Correction: the "+0.147 with EI's terminal regret as a feature" of the 15:50 entry was mechanical (same-seed score: +0.098 on seed 0, −0.012 on seed 1).
+- option_policy_r2 (notebook 14): sanity done; pilot launched 09:04 (4000 tasks, ETA about 13:10).
+- Verified: notebook 15 executed on the snapshot, numbers re-read from cell outputs; tests pass (138).
+- Open: `just decide runs/ei_failure/pilot_20261113-075212 NO_GO` (blocked in the session).

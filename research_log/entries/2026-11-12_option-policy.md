@@ -1,6 +1,14 @@
 ---
 experiment: option_policy
-sweeps: []
+sweeps:
+- id: pilot_20261112-123724
+  stage: pilot
+  commit: c36d0c36fbd5
+  decision: INCONCLUSIVE
+  reason: policy beats EI (+0.135 [0.096, 0.174]) but gains only +0.017 [-0.018, 0.050]
+    over the best static schedule
+  members: 1/1 done
+  decided: '2026-11-13'
 ---
 # Can a policy that reads only the context choose options that beat EI? One-deviation option policy from exact labels
 
