@@ -19,3 +19,4 @@ Session diary: [track_record.md](track_record.md) · backlog: GitHub issues labe
 | [2026-11-12_option-policy](entries/2026-11-12_option-policy.md) | `option_policy` | pilot `pilot_20261112-123724`: **INCONCLUSIVE** |
 | [2026-11-12_pfn-bo-inference](entries/2026-11-12_pfn-bo-inference.md) | `pfn_bo_inference` | pilot `pilot_20261112-084114`: **GO** |
 | [2026-11-13_acq-distill](entries/2026-11-13_acq-distill.md) | `acq_distill` | — |
+| [2026-11-13_mixture-policy](entries/2026-11-13_mixture-policy.md) | `mixture_policy` | — |
