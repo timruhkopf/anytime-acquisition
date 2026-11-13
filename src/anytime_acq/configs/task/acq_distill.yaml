@@ -14,6 +14,7 @@ train:
   steps: 8000
   batch: 48
   n_extra: 256           # fresh queries per state, beside its seed-0 candidate set
+  n_queries: 512         # queries per state in the loss: every arm's top 16, random others
   lr: 3.0e-4
   weight_decay: 0.01
   warmup: 300
@@ -23,7 +24,7 @@ eval:
   n_random: 1
   every: 1               # agreement at every `every`-th step
   n_dense: 1024          # dense query set: grid (d <= 2) or Sobol
-  n_examples: 6          # tasks whose states are stored with the dense scores (d <= 2)
+  n_examples: 3          # tasks whose states are stored with the dense scores (d <= 2)
   n_closed_loop: 300     # tasks of the closed-loop comparison
 task_chunk: 300
 task_draw: {n_dense: 16384, n_refine: 16, refine_steps: 200}

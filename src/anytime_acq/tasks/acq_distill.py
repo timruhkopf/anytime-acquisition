@@ -13,7 +13,8 @@ One member = one input dimension d.
   example states with the scores on the dense set (d <= 2); and closed loop: BO with the branch's column as the
   acquisition against the arm itself, on the same tasks and candidates.
 
-Tables: `train` (loss curve), `states` (agreement per state, arm and query set), `examples`, `examples_ctx`,
+Tables: `train` (loss curve), `agree` (agreement per kind of run, step, query set and arm, averaged over
+states), `examples`, `examples_ctx`,
 `closed` (per task and arm), `curves` (mean log10 regret per step), `summary`. Artifact: `branch.pt`.
 """
 
@@ -27,7 +28,7 @@ import torch
 from omegaconf import DictConfig
 from pfn_repro.checkpoints import load
 
-from ..analysis.acq_distill import distill_verdict, summarize
+from ..analysis.acq_distill import GOOD_PICK, distill_verdict, summarize
 from ..bo.engine import Engine
 from ..bo.runner import initial_design
 from ..bo.tasks import Tasks, draw_tasks, task_seed
@@ -132,6 +133,14 @@ def train(cfg: DictConfig, engine: Engine, branch: AcqBranch, run: Run) -> pd.Da
         idx = torch.randint(0, len(X_all), (B,), generator=gen)
         X, Y = X_all[idx, :n].to(t.device), F_all[idx, :n].to(t.device)
         xq, tsc, valid, _ = teacher(engine, arms, X, Y, extra_queries(X, Y, int(tr.n_extra), gen))
+        m = int(tr.n_queries)  # train on a subset: every arm's top 16, random others
+        if m < xq.shape[1]:
+            key = torch.rand(xq.shape[:2], generator=gen).to(t.device)
+            top = tsc.masked_fill(~valid[..., None], float("-inf")).topk(16, 1).indices.flatten(1)
+            key.scatter_(1, top, -1.0)
+            keep = key.topk(m, 1, largest=False).indices
+            xq, valid = xq.gather(1, keep[..., None].expand(-1, -1, d)), valid.gather(1, keep)
+            tsc = tsc.gather(1, keep[..., None].expand(-1, -1, tsc.shape[-1]))
         s = branch_scores(branch, engine, X, Y, xq, budget_features(tb, T, n, B, t.device), chunk=B)
         loss, parts = rank_loss(s, tsc, valid, gen)
         opt.zero_grad()
@@ -265,17 +274,28 @@ def evaluate(cfg: DictConfig, engine: Engine, branch: AcqBranch, run: Run) -> pd
                 for a, arm in enumerate(arms):
                     curves.setdefault((arm, name), []).append(lr[a].cpu())
     states = pd.concat(st_rows, ignore_index=True)
+    states["good"] = states.rank_pct <= GOOD_PICK
+    states["ok5"] = states.rank_pct <= 0.05
+    keys = ["run", "step", "query_set", "arm"]
+    cols = ["top1", "good", "ok5", "rank_pct", "gap", "spearman", "spearman_top"]
+    grouped = states.astype({"good": float, "ok5": float}).groupby(keys)
+    agree = grouped[cols].mean()
+    agree["n_states"] = grouped.size().to_numpy()
+    agree = agree.reset_index()
     closed = pd.concat(cl_rows, ignore_index=True)
     cur = [
         {"arm": arm, "policy": name, "step": i, "log_regret": float(v), "n_tasks": len(torch.cat(parts))}
         for (arm, name), parts in curves.items()
         for i, v in enumerate(torch.cat(parts).mean(0))
     ]
-    run.log_table("states", states)
+    run.log_table("agree", agree)
     run.log_table("closed", closed)
     run.log_table("curves", pd.DataFrame(cur))
     if ex_rows:
-        run.log_table("examples", pd.concat(ex_rows, ignore_index=True))
+        ex = pd.concat(ex_rows, ignore_index=True)
+        num = ex.select_dtypes("float").columns
+        ex[num] = ex[num].astype("float32")
+        run.log_table("examples", ex)
         run.log_table("examples_ctx", pd.concat(ctx_rows, ignore_index=True))
     summary = summarize(states, closed, float(t.eps), int(t.n_boot))
     run.log_table("summary", summary)
@@ -319,4 +339,4 @@ def acq_distill(cfg: DictConfig, run: Run) -> float:
         run.log_summary(**{f"{k}/{r['arm']}": float(v) for k, v in r.items() if k != "arm"})
     verdict = distill_verdict(summary)
     run.log_summary(verdict_go=float(verdict == "GO"), verdict_nogo=float(verdict == "NO-GO"))
-    return float(summary["cand0:good_pick"].min())
+    return float(summary["cand0:good_pick"].to_numpy().min())

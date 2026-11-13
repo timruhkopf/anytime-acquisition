@@ -102,6 +102,7 @@ def test_pipeline_end_to_end(tmp_path: Path) -> None:
                 "task.train.steps=4",
                 "task.train.batch=4",
                 "task.train.n_extra=8",
+                "task.train.n_queries=24",
                 "task.train.log_every=2",
                 "task.eval.tasks.n_tasks=5",
                 "task.eval.n_dense=16",
@@ -117,10 +118,10 @@ def test_pipeline_end_to_end(tmp_path: Path) -> None:
     run = Run(tmp_path)
     acq_distill(cfg, run)
     tables = {p.stem: pd.read_parquet(p) for p in (run.artifacts / "tables").glob("*.parquet")}
-    assert {"train", "states", "closed", "curves", "examples", "examples_ctx", "summary"} <= set(tables)
-    st, cl, ex = tables["states"], tables["closed"], tables["examples"]
+    assert {"train", "agree", "closed", "curves", "examples", "examples_ctx", "summary"} <= set(tables)
+    st, cl, ex = tables["agree"], tables["closed"], tables["examples"]
     assert set(st.query_set) == {"cand0", "cand1", "dense"} and set(st.arm) == set(ARMS)
-    assert len(st) == 5 * 6 * 4 * 3 * 5  # tasks x runs (5 arms + random) x steps x query sets x arms
+    assert len(st) == 6 * 4 * 3 * 5 and int(st.n_states.iloc[0]) == 5  # runs (5 arms + random) x steps x sets x arms
     assert len(cl) == 3 * 5 and bool((cl.regret_teacher >= 0).all()) and bool((cl.regret_student >= 0).all())
     assert {"teacher:ei", "student:mes", "f", "pfn_mean", "x0"} <= set(ex.columns)
     assert ex.example.nunique() == 2 * 2 * len({1, 4 // 3, 8 // 3})
