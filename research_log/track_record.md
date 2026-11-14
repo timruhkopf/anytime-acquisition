@@ -320,7 +320,7 @@ These are scratch checks (`uv run`, not tracked), run on 200 of the pinned label
   - Context over budget-only: +0.014 [0.003, 0.025] (d = 2, INCONCLUSIVE), +0.007 [−0.007, 0.021] (d = 4, NO-GO). An untrained uniform mixture already gives +0.031 / +0.016 over MES.
 - option_policy_r2 (notebook 14; snapshot `pilot_20261113-090450`): policy over the static schedule −0.023 [−0.043, −0.003], NO-GO. The schedule "UCB, then EI at the end" is +0.195 [0.164, 0.226] over EI.
 - acq_distill: the 12000-step d = 1 run (`runs/acq_distill/sanity_20261113-113139`) trained and then failed in its evaluation with a CUDA out-of-memory error (GPU shared three ways); `branch.pt` exists, no agreement tables.
-- The session stalled again from 2026-11-13 17:55 to 2026-11-14 10:50 (a commit command hung); the d = 4 option_headroom scan was only launched at 10:51 on 2026-11-14.
+- The session stalled again from 2026-11-13 17:55 to 2026-11-14 10:50 (cause not established); the d = 4 option_headroom scan was only launched at 10:51 on 2026-11-14.
 - Two snapshot tables were recompressed losslessly (zstd) to pass the 2000 KB commit limit.
 - Verified: notebooks 14 and 17 executed on the snapshots, numbers re-read from cell outputs.
 - Open: `just decide` for ei_failure (NO_GO), option_policy_r2 (NO_GO), mixture_policy d = 2 (INCONCLUSIVE) and d = 4 (NO_GO), all blocked in the session.
