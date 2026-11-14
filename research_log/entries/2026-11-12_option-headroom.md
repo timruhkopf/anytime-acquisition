@@ -63,3 +63,23 @@ See the description at the top of `notebooks/12_2026-11-12_option_headroom.ipynb
 2. a value model or belief rollouts per (arm, k), trained on these exact labels, with conservative acceptance against EI and the best static arm (0008 §4 step 3).
 
 Then d = 4, where basin discovery should matter more.
+
+## §3 Pilot at d = 4 (2026-11-14)
+
+**What ran.** The same pipeline with `task.d=4 task.part_b.t_max=30` (n_init = 8, T = 40), on ulysses 2026-11-14 10:51–11:30, alone on the GPU (`results/option_headroom/pilot_20261114-105056`, code 9c091ab; 1 member, DONE). Analysis as pre-stated in notebook 12's addendum; numbers from the addendum cell of notebook 12.
+
+**Result.**
+- Part A, EI at T: above 1e-3 in 44% of runs (d = 2: 21%), above 1e-2 in 17% (9%); in a good basin (1 bin) 72% (85%); 24% of runs never reach one (13%). Median first step in a good basin: 0 for every arm; 75% quantile 1–4.
+- Best arm by budget, mean log10(regret + 1e-3): T/4 EI −2.216, T/2 MES −2.471, T UCB(0.995) −2.685 (EI −2.552).
+- Part B, arms' cross-fitted headroom: H₃ = 0.076 [0.039, 0.112] (d = 2: 0.195 [0.148, 0.244]); static part 0.059 [0.022, 0.096]; context-dependent part 0.017 [−0.013, 0.049] (d = 2: 0.109 [0.070, 0.150]).
+- At ε = 1e-3: H₃ = 0.016 [0.002, 0.030], context-dependent part −0.000 [−0.011, 0.010].
+- Net basin gain of any option: at most +0.022.
+
+**Interpretation.**
+- d = 4 is harder: twice as many runs end above one bin, and one EI run in four ends in the wrong basin.
+- Short deviations do not fix that: they rarely change the basin, and their headroom is one fixed deviation, not a state-dependent one.
+- The gain over EI is in which arm is used over long stretches of the budget (EI early, UCB late).
+
+**Verdict (pre-registered rule, arms' H at k = 3): GO** as at d = 2; the context-dependent part is not different from zero.
+
+**Next.** The static budget schedule as the reference to beat; harder still means a tighter budget or d = 6.

@@ -1,0 +1,29 @@
+{
+ "id": "pilot_20261114-105056",
+ "experiment": "option_headroom",
+ "stage": "pilot",
+ "kind": "grid",
+ "command": "just sweep detached pilot experiment=option_headroom task.d=4 task.part_b.t_max=30",
+ "overrides": [
+  "experiment=option_headroom",
+  "task.d=4",
+  "task.part_b.t_max=30"
+ ],
+ "backend": "detached",
+ "commit": "9c091abb2afbe0cf6c373018be6698c7a35b4a20",
+ "branch": "HEAD",
+ "tag": "sweep/option_headroom/pilot_20261114-105056",
+ "allow_dirty": false,
+ "host": "ulysses",
+ "created": "2026-11-14T10:50:56",
+ "editable_dependencies": {},
+ "status_counts": {
+  "DONE": 1
+ },
+ "first_start": "2026-11-14T10:50:58",
+ "last_end": "2026-11-14T11:30:47",
+ "wall_h": 0.663,
+ "device_h": 0.0,
+ "snapshot_created": "2026-11-14T11:33:49",
+ "sweep_dir": "runs/option_headroom/pilot_20261114-105056"
+}
