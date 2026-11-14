@@ -1,0 +1,34 @@
+{
+ "id": "confirm_20261022-145708",
+ "experiment": "bbob_switching",
+ "stage": "confirm",
+ "kind": "grid",
+ "command": "just sweep detached confirm experiment=bbob_switching task.split=1 task.surrogate=gp task.null_reference=true 'task.base_by_d={2:ucb0.9,5:ucb0.9}' 'task.arms_by_d={2:[ucb0.9,ei,pi0.01,ucb0.99,mes,mean],5:[ucb0.9,ei,pi0.01,ucb0.99,mes,mean]}' task.method=static,privileged,equal_arms task.d=2,5",
+ "overrides": [
+  "experiment=bbob_switching",
+  "task.split=1",
+  "task.surrogate=gp",
+  "task.null_reference=true",
+  "task.base_by_d={2:ucb0.9,5:ucb0.9}",
+  "task.arms_by_d={2:[ucb0.9,ei,pi0.01,ucb0.99,mes,mean],5:[ucb0.9,ei,pi0.01,ucb0.99,mes,mean]}",
+  "task.method=static,privileged,equal_arms",
+  "task.d=2,5"
+ ],
+ "backend": "detached",
+ "commit": "63900a28b7bf6f797be6c5c5138df38f641160da",
+ "branch": "HEAD",
+ "tag": "sweep/bbob_switching/confirm_20261022-145708",
+ "allow_dirty": false,
+ "host": "ulysses",
+ "created": "2026-10-22T14:57:08",
+ "editable_dependencies": {},
+ "status_counts": {
+  "DONE": 6
+ },
+ "first_start": "2026-10-22T14:57:10",
+ "last_end": "2026-10-22T16:00:51",
+ "wall_h": 1.059,
+ "device_h": 0.0,
+ "snapshot_created": "2026-10-23T08:04:56",
+ "sweep_dir": "runs/bbob_switching/confirm_20261022-145708"
+}

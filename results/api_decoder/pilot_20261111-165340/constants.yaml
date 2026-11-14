@@ -1,0 +1,54 @@
+seed: 0
+task.T_per_d: 10
+task.api_candidates.local_sigmas: '[0.01, 0.03, 0.1]'
+task.api_candidates.n_global: 64
+task.api_candidates.n_local_per_point: 16
+task.api_candidates.n_top: 4
+task.calib.n_tasks: 300
+task.calib.rules: '["q0.1", "q0.3", "q0.5", "mean"]'
+task.calib.split: 0
+task.calib.task_offset: 0
+task.candidates.local_sigmas: '[0.01, 0.05, 0.2]'
+task.candidates.n_local: 64
+task.candidates.n_sobol: 1024
+task.chunk: 256
+task.d: 2
+task.decoder.blocks: 4
+task.decoder.heads: 4
+task.decoder.n_bins: 64
+task.decoder.read: '[2, 4, 6, 8]'
+task.decoder.width: 256
+task.decoder.zero_eps: 0.001
+task.device: cuda
+task.eps: 0.0001
+task.group: 256
+task.label.behaviour.ei: 0.8
+task.label.behaviour.pi: 0.1
+task.label.behaviour.ucb0.99: 0.1
+task.label.chunk_tasks: 1000
+task.label.n_cont: 4
+task.label.n_labeled: 16
+task.label.n_tasks: 8000
+task.label.split: 4
+task.label.task_draw.n_dense: 4096
+task.label.task_draw.n_refine: 8
+task.label.task_draw.refine_steps: 50
+task.label.task_offset: 4000
+task.label.val_frac: 0.1
+task.labels.path: api_round1/pilot_20261111-133311/0/tracking/artifacts/labels.pt
+task.labels.sha256: c27d893923d0f003ed7b1e1148ad6670c1f5fb061ac7cdf137eb2a8a64c678d9
+task.n_init_per_d: 2
+task.name: api_decoder
+task.pfn: pfn_large
+task.task_draw.n_dense: 16384
+task.task_draw.n_refine: 16
+task.task_draw.refine_steps: 200
+task.test.n_tasks: 1000
+task.test.split: 1
+task.test.task_offset: 0
+task.tf32: false
+task.train.batch: 64
+task.train.epochs: 60
+task.train.lr: 0.0003
+task.train.patience: 8
+task.train.wd: 0.01

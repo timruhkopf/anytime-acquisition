@@ -1,4 +1,4 @@
-"""BO runs: static arms, and the non-anticipating rollout controller.
+"""BO runs: static arms, GP-Hedge, and the non-anticipating rollout controller.
 
 The rollout controller (Bertsekas-style policy improvement over a base policy) decides at the start of
 every segment:
@@ -20,13 +20,15 @@ tasks has no selection bias (unlike a hindsight oracle). An equal-arms portfolio
 must give a gain of zero in expectation: the null control.
 """
 
+import math
 from collections.abc import Callable
 from dataclasses import dataclass
 
 import torch
 
+from . import nuisance
 from .engine import Engine
-from .tasks import Tasks
+from .tasks import TaskSet
 
 
 @dataclass
@@ -40,7 +42,7 @@ class Budget:
         return -(-self.T // self.segment)
 
 
-def initial_design(tasks: Tasks, n_init: int) -> torch.Tensor:
+def initial_design(tasks: TaskSet, n_init: int) -> torch.Tensor:
     """[B, n_init, d]: the first n_init points of a scrambled Sobol sequence, shifted per task (CRN for
     every method on a task)."""
     d = tasks.d
@@ -64,7 +66,7 @@ def sample_bar(bd: torch.nn.Module, logits: torch.Tensor, u: torch.Tensor) -> to
 
 def simulate(
     engine: Engine,
-    tasks: Tasks,
+    tasks: TaskSet,
     X: torch.Tensor,
     Y: torch.Tensor,
     F: torch.Tensor,
@@ -84,9 +86,8 @@ def simulate(
             y = tasks.f(x[:, None], rows)[:, 0]
             f = y
         elif mode == "belief":
-            from . import nuisance
-
             u = nuisance.stream(engine.base_seed, "fantasy", t, reps, rows, (), tasks.B, False, X.device)
+            assert engine.pfn is not None, "belief rollouts sample from the PFN's predictive"
             y = sample_bar(engine.pfn.bar_dist, out["logits"], u)
             f = y
         else:
@@ -98,7 +99,7 @@ def simulate(
 
 
 def run_static(
-    engine: Engine, tasks: Tasks, arm: str, budget: Budget, device: str | torch.device
+    engine: Engine, tasks: TaskSet, arm: str, budget: Budget, device: str | torch.device
 ) -> dict[str, torch.Tensor]:
     """Every task with one arm, replicate 0. -> {"X": [B, n, d], "F": [B, n]} (n = n_init + T)."""
     X = initial_design(tasks, budget.n_init).to(device)
@@ -109,9 +110,64 @@ def run_static(
     return {"X": X, "F": F}
 
 
+def hedge_eta(eta: float | str, n_arms: int, T: int) -> float:
+    """A float, or "auto": sqrt(8 ln K / T), Hedge's fixed-horizon rate for rewards in [0, 1]."""
+    return math.sqrt(8 * math.log(n_arms) / T) if eta == "auto" else float(eta)
+
+
+def run_hedge(
+    engine: Engine, tasks: TaskSet, arms: list[str], budget: Budget, eta: float, device: str | torch.device
+) -> dict[str, torch.Tensor]:
+    """GP-Hedge (Brochu, Hoffman & de Freitas 2011, arXiv:1009.5419, Algorithm 2), for minimization.
+
+    Every step t, on every task (replicate 0):
+    1. each arm i nominates its argmax x_t^i (all arms score the same candidates: CRN);
+    2. Hedge picks nominee j with p_t(j) = softmax(eta * g_{t-1})_j, by the inverse CDF of one uniform from
+       the `hedge` nuisance stream (CRN across eta and portfolios);
+    3. f(x_t^j) is evaluated and added to the context;
+    4. every arm, chosen or not, gets the reward r_t^i = -mu_t(x_t^i) from the *updated* posterior (the
+       paper's mu_t, negated for minimization), on the [0, 1] scale of `Engine.posterior_mean_u`;
+    5. g_t = g_{t-1} + r_t.
+    With identical arms the nominees coincide, so the run equals the static arm exactly (the null).
+    -> {"X", "F": as run_static, "choice": [B, T] arm index, "probs": [B, T, K], "gains": [B, T, K] after t}.
+    """
+    B, K = tasks.B, len(arms)
+    X = initial_design(tasks, budget.n_init).to(device)
+    F = tasks.f(X)
+    d = X.shape[-1]
+    rows = torch.arange(B, device=device)
+    reps0 = torch.zeros(B, dtype=torch.long, device=device)
+    rows_k = rows.repeat_interleave(K)  # lane b * K + i: task b, arm i
+    reps_k = torch.zeros(B * K, dtype=torch.long, device=device)
+    lane_arms = [a for _ in range(B) for a in arms]
+    g = torch.zeros(B, K, dtype=torch.float64, device=device)
+    ar = torch.arange(B, device=device)
+    choices, probs, gains = [], [], []
+    for t in range(budget.T):
+        nom = engine.propose(X.repeat_interleave(K, 0), F.repeat_interleave(K, 0), lane_arms, rows_k, reps_k, t, B)
+        nom = nom["x"].reshape(B, K, d)
+        p = torch.softmax(eta * g, -1)
+        u = nuisance.stream(engine.base_seed, "hedge", t, reps0, rows, (), B, False, device).double()
+        j = (p.cumsum(-1) < u[:, None]).sum(-1).clamp(max=K - 1)
+        x = nom[ar, j]
+        X = torch.cat([X, x[:, None]], 1)
+        F = torch.cat([F, tasks.f(x[:, None], rows)[:, 0][:, None]], 1)
+        g = g - engine.posterior_mean_u(X, F, nom).double()
+        choices.append(j)
+        probs.append(p)
+        gains.append(g)
+    return {
+        "X": X,
+        "F": F,
+        "choice": torch.stack(choices, 1),
+        "probs": torch.stack(probs, 1).float(),
+        "gains": torch.stack(gains, 1).float(),
+    }
+
+
 def run_controller(
     engine: Engine,
-    tasks: Tasks,
+    tasks: TaskSet,
     arms: list[str],
     base: str,
     budget: Budget,

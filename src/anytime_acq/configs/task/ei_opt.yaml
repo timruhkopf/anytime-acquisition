@@ -1,0 +1,24 @@
+# How well is EI optimized; a deterministic refined EI as pi_0 (tasks/ei_opt.py, experimental/ei_opt.py;
+# research_log/decisions/0007). Pre-registration: notebooks/11_2026-11-12_ei_opt.ipynb.
+name: ei_opt
+d: 2
+pfn: pfn_large
+n_init_per_d: 2
+T_per_d: 10
+candidates: {n_sobol: 1024, n_local: 64, local_sigmas: [0.01, 0.05, 0.2]}  # pi_0's candidate generator (sizes)
+refine: {k: 8, steps: 100, lr: 0.01}  # Adam on x from the top-k candidates by EI, cosine-annealed lr
+n_reps: 4                # replicate candidate sets (the sampled variants' nuisance)
+labels:              # the round-1 label set (as api_probe / api_gate / pfn_bo_inference), pinned
+  path: api_round1/pilot_20261111-133311/0/tracking/artifacts/labels.pt
+  sha256: c27d893923d0f003ed7b1e1148ad6670c1f5fb061ac7cdf137eb2a8a64c678d9
+states: {n_states: 2000, task_draw: {n_dense: 256, n_refine: 1, refine_steps: 1}}  # f only (f* from the labels)
+rollouts:
+  split: 0               # tuning split: this chooses pi_0
+  task_offset: 0
+  n_tasks: 1000
+  task_draw: {n_dense: 16384, n_refine: 16, refine_steps: 200}
+log_eps: 1.0e-6
+group: 256               # states per pass
+tf32: false
+device: cuda
+chunk: 256

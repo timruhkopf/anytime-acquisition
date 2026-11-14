@@ -1,0 +1,38 @@
+seed: 0
+task.T_per_d: 10
+task.alpha: alpha_pes_large
+task.arms: '["ei", "pi0.01", "ucb0.9", "ucb0.99", "mes", "mean"]'
+task.base: ei
+task.bbob.fids: '[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+  20, 21, 22, 23, 24]'
+task.bbob.instances_by_split.0: '[1]'
+task.bbob.instances_by_split.1: '[2, 3, 4, 5]'
+task.bbob.instances_by_split.2: '[6]'
+task.bbob.reps: 2
+task.benchmark: bbob
+task.candidates.local_sigmas: '[0.01, 0.05, 0.2]'
+task.candidates.n_local: 64
+task.candidates.n_sobol: 1024
+task.chunk: 512
+task.device: cuda
+task.eps: 1.0e-08
+task.gp_fit_iters: 100
+task.method: static
+task.n_init_per_d: 2
+task.n_rollouts: 8
+task.n_tasks: 100
+task.name: bo
+task.null_k: 6
+task.null_reference: false
+task.pfn: pfn_large
+task.random_search: true
+task.rollout_candidates.local_sigmas: '[0.01, 0.05, 0.2]'
+task.rollout_candidates.n_local: 32
+task.rollout_candidates.n_sobol: 512
+task.segment_per_d: 2
+task.split: 0
+task.task_draw.n_dense: 16384
+task.task_draw.n_refine: 16
+task.task_draw.refine_steps: 200
+task.task_offset: 0
+task.tf32: false

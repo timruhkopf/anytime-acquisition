@@ -1,0 +1,10 @@
+# @package _global_
+# Amortized policy improvement, round 1 (research_log/decisions/0003): a value head over EI with the
+# conservative rule, against EI. Pre-registration: notebooks/06_2026-11-11_api_round1.ipynb.
+# Labels on split 4, c calibrated on split 0, test on split 1 (never selected on).
+# Pilot: task.d=2 (then task.d=4 if the budget allows).
+defaults:
+  - override /task: api
+
+task:
+  d: 2

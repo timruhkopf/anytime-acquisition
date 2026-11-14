@@ -57,6 +57,71 @@ Annotated literature for this project. BibTeX for every entry lives in `referenc
 - **Relevance:** closest amortized acquisition with a transformer; differs from us by training the backbone jointly (ours is frozen) and by not testing switching.
 - **Used in:** README
 
+### [hsieh2021reinforcedfewshotacquisitionfunction] Hsieh, Hsieh, Liu (2021). *Reinforced Few-Shot Acquisition Function Learning for Bayesian Optimization* (FSAF). arXiv:2106.04335
+- **Status:** abstract read (2026-11-10); venue to-verify (arXiv lists none; probably NeurIPS 2021).
+- **Claim:** FSAF treats a deep Q-network as a differentiable acquisition function. It learns a *distribution*
+  of Q-networks (Bayesian DQN, KL-regularized, prior from a demo policy induced by an off-the-shelf AF such
+  as EI) with a Bayesian-MAML meta-loss, so it adapts few-shot to new tasks. It is dimension- and
+  cardinality-agnostic and is on par with or better than state-of-the-art baselines on synthetic and real
+  test functions.
+- **Relevance:** closest related work and a learned-AF baseline. Like MetaBO it learns one new AF by RL
+  rather than choosing among existing ones (contrast GP-Hedge, `brochu2011hedge`). Its demo-policy prior
+  and few-shot adaptation answer MetaBO's overfitting problem, a risk our prior-amortized policy shares.
+- **Used in:** background for the learned selector (problem statement, Stage 1+).
+
+### [song2024reinforcedincontextblackboxoptimization] Song, Gao, Xue, Wu, Li, Hao, Zhang, Qian (2024). *Reinforced In-Context Black-Box Optimization* (RIBBO). arXiv:2402.17423
+- **Status:** abstract read (2026-11-10); venue to-verify (arXiv lists none).
+- **Claim:** a causal sequence model (decision-transformer style) is trained offline on optimization
+  histories from several behavior algorithms and tasks. The histories are augmented with *regret-to-go*
+  tokens (cumulative regret over the rest of the history). Conditioning on a desired regret-to-go makes it
+  generate query points directly, with good results on BBO benchmarks, HPO and robot control.
+- **Relevance:** closest related work as a *learned, context-dependent* acquisition, since it decides from
+  the current history at every step. We differ on every other axis:
+  - it imitates offline behavior logs (it is bounded by those algorithms' data); we amortize over the prior;
+  - it generates x end to end, with no belief model; we read a frozen PFN's posterior and choose among, or
+    act on top of, acquisition options;
+  - it queries by return (regret-to-go).
+- **Notes:** we consider return-conditioned querying unsound for this purpose. The desired regret-to-go has
+  to be chosen by the user, and regret needs f* (unknown at deployment). Return conditioning in decision
+  transformers does not reliably extrapolate beyond the returns in the behavior data, and on stochastic
+  tasks it conflates luck with skill. Cite it as positioning, not as a baseline we adopt.
+
+### [meindl2025zeroshotoptzeroshotpretrainedmodels] Meindl, Tian, Cui, Thost, Hong, Dürholt, Chen, Matusik, Konaković Luković (2025). *ZeroShotOpt: Towards Zero-Shot Pretrained Models for Efficient Black-Box Optimization*. arXiv:2510.03051
+- **Status:** abstract read (2026-11-10); venue to-verify (arXiv lists none).
+- **Claim:** a pretrained model for continuous black-box optimization from 2D to 20D. It is trained by
+  offline RL (a decision-transformer-style sequence model) on optimization trajectories of 12 BO variants
+  run on millions of synthetic GP-sampled functions. It generalizes zero-shot to unseen benchmarks and
+  matches or beats BO and other global optimizers in sample efficiency. Code, dataset and model are open.
+- **Relevance:** closest related work on the *prior-amortization* axis. Like us it is pretrained on draws
+  from a synthetic function prior, not on a task family, and it decides from the current context. In
+  effect it is RIBBO (`song2024reinforcedincontextblackboxoptimization`) trained offline on GP-prior
+  trajectories. Differences:
+  - it imitates and recombines the 12 behavior BO variants (bounded by their trajectories); our policy is
+    trained against the prior itself (privileged / belief rollouts);
+  - it generates x with no explicit belief; we act on a frozen PFN's posterior and a set of acquisition
+    options.
+  Candidate *external baseline*: open weights, a 2–20D range that covers ours (d <= 6), zero-shot.
+- **Architecture (paper text, via the user 2026-11-10):**
+  - inputs are four token types: regret, length, action (the proposed point) and state (the function
+    value). It *does* condition on regret like RIBBO, so the critique there applies; check how the target
+    is set at test time;
+  - **each action dimension is its own token**: a fixed sinusoidal embedding of the normalized value, plus
+    two learned positional embeddings (dimension and step);
+  - a causal decoder-only transformer, trained with cross-entropy on binned action and state values
+    (2,000 linear bins).
+  So x is generated autoregressively, one coordinate at a time, each a categorical given the earlier
+  coordinates. That is a bar distribution per dimension.
+- **Why the per-dimension tokens matter to us:**
+  - our PFN embeds a point as *one* token (padded to `max_x_dim`, rescaled by `n_features`).
+    Per-dimension tokens are dimension-agnostic without padding and let attention address single inputs
+    (relevance / d_eff);
+  - for an action head, an autoregressive per-coordinate bar distribution p(x_j | x_<j, context) is an
+    alternative to a parametric mixture over x. It is exact in shape (multimodal per coordinate), costs d
+    sequential steps per proposal, and the context grows to about T·(d + 3) tokens (quadratic attention).
+- **Notes:** check how the regret target is set at test time (see the critique under RIBBO). Also check its GP prior (kernels, lengthscales,
+  noise), the 12 behavior variants, and the budgets. A comparison with us is possible only on the overlap
+  d = 2–6.
+
 ### [chen2022optformer] Chen, Song, Lee, Wang, Zhang, Dohan, Kawakami, Kochanski, Doucet, Ranzato, Perel, de Freitas (2022). *Towards Learning Universal Hyperparameter Optimizers with Transformers*. NeurIPS 2022. arXiv:2205.13320
 - **Status:** skimmed
 - **Claim:** A transformer trained on optimization traces imitates and can improve on the HPO algorithms that produced them.
@@ -67,9 +132,57 @@ Annotated literature for this project. BibTeX for every entry lives in `referenc
 - **Status:** read
 - **Claim:** GP-Hedge: choose among acquisition functions online with a bandit over their past rewards.
 - **Relevance:** the classic non-learned switching baseline; motivates the portfolio formulation.
-- **Used in:** README; notebook 02
+- **Used in:** README; notebook 02; `bo/runner.py::run_hedge` (`task.method=hedge`, issue #11).
+- **Notes:** Algorithm 2 (Hedge, full information): every arm nominates its argmax, a nominee is drawn with
+  p ∝ exp(η g), every arm is rewarded with the *updated* GP's mean at its own nominee, μ_t(x_t^i), and gains
+  accumulate. Maximization in the paper; we use −μ_t. The paper gives no η. Its rewards are raw-scale GP
+  means, so η's effect depends on the objective's scale; ours are on [0, 1] (`Engine.posterior_mean_u`).
+  Portfolios: N=3 {EI ξ=0.01, PI ξ=0.01, GP-UCB δ=0.1 ν=0.2}; N=9 adds ξ ∈ {0.1, 1} for PI/EI and
+  ν ∈ {0.1, 1}. Hedge beat Exp3 and NormalHedge (which collapses to exploitation). Experiments: Branin,
+  Hartman 3/6, 25 runs, gap metric. The UAI version lists the authors as Hoffman, Brochu, de Freitas.
+
+### [benjamins2022automateddesignbayesianoptimization] Benjamins, Jankovic, Raponi, van der Blom, Lindauer, Doerr (2022). *Towards Automated Design of Bayesian Optimization via Exploratory Landscape Analysis*. 6th Workshop on Meta-Learning at NeurIPS 2022. arXiv:2211.09678
+- **Status:** abstract read (2026-11-10).
+- **Claim:** a random-forest regressor on exploratory landscape analysis (ELA) features computed from the
+  initial design is enough to recommend, per run, an acquisition function (or AF schedule) that beats every
+  static choice on BBOB (COCO).
+- **Relevance:** closest related work: a *snapshot* variant of our idea, without RL. They decide once,
+  after the initial design: ELA features of that one snapshot pick which AF variant runs for the rest of
+  the run. Our selector is context-dependent: it re-decides at every step from the frozen PFN's current
+  in-context belief, and is amortized over the prior rather than fitted on hand-crafted features. Natural
+  baseline: ELA on the initial design → static AF choice (our `static` arms selected per task, vs. B*).
+  Same group as `benjamins2023sawei`.
+- **Used in:** background for `bbob_switching` and the learned selector (problem statement, Stage 1+).
+- **Notes:** check the full paper for the AF portfolio, the schedules (static vs switching after a budget
+  fraction), the ELA feature set, and which BBOB dimensions and budgets they used before comparing.
+
+### [benjamins2023sawei] Benjamins, Raponi, Jankovic, Doerr, Lindauer (2023). *Self-Adjusting Weighted Expected Improvement for Bayesian Optimization*. AutoML 2023 (PMLR 224). arXiv:2306.04262
+- **Status:** read
+- **Claim:** Adapting Weighted EI's exploration weight α during a run, whenever the upper-bound regret (UBR) stalls, ranks among the best of the static acquisitions (EI, PI, LCB), the hand-made schedules and GP-Hedge on 24 noise-free BBOB functions (8D, 3 instances, 10 seeds, SMAC GP).
+- **Relevance:** the closest positive evidence for within-run acquisition adaptation on BBOB. It doesn't control for luck: results are IQM-of-ranks, with no significance tests, no null, no per-function or held-out static oracle, and no numeric gains reported.
+- **Used in:** notebook 04 (bbob_switching); issues #8, pfn-repro#3
+- **Notes:** budget 24 initial + 256 BO evaluations; SMAC's local + random acquisition search.
+
+### [cowenrivers2022hebo] Cowen-Rivers et al. (2022). *HEBO: Pushing the Limits of Sample-Efficient Hyperparameter Optimisation*. JAIR. arXiv:2012.03826
+- **Status:** skimmed
+- **Claim:** An empirical study of BO assumptions: heteroscedastic, non-stationary objectives are common, and a multi-objective acquisition ensemble (Pareto front of EI, PI, UCB) improves queries.
+- **Relevance:** the literature's case that one acquisition is not enough on real tasks; its noise findings motivate #9.
+- **Used in:** notebook 04; issues #7, #9
 
 ## Method building blocks
+
+### [bergna2026decoupled] Bergna, Depeweg, Hernández-Lobato (2026). *Decoupled PFNs: Identifiable Epistemic-Aleatoric Decomposition via Structured Synthetic Priors*. arXiv:2605.06413
+- **Status:** skimmed
+- **Claim:** The epistemic/aleatoric split is not identifiable from the posterior predictive alone. A PFN trained with the generator's noise-free signal and noise level as privileged targets separates the two, and epistemic-only acquisition avoids the failure of total-variance exploration under (heteroscedastic) noise.
+- **Relevance:** method source for the noisy-PFN direction (#9, pfn-repro#3) and for a belief value on the latent f (#6).
+- **Used in:** issues #6, #9; pfn-repro#3
+
+### [nagler2026martingale] Nagler, Rügamer (2026). *Uncertainty Quantification for Prior-Data Fitted Networks using Martingale Posteriors*. ICML 2025. arXiv:2505.11325
+- **Status:** skimmed
+- **Claim:** A PFN's predictive distribution mixes aleatoric and epistemic uncertainty and gives no uncertainty for predictive summaries; martingale-posterior sampling adds it.
+- **Relevance:** background for #9: why the bar distribution's spread is not epistemic uncertainty.
+- **Used in:** issue #9; pfn-repro#3
+
 
 ### [black2024pi0] Black et al. (2024). *π0: A Vision-Language-Action Flow Model for General Robot Control*. arXiv:2410.24164
 - **Status:** read

@@ -1,0 +1,9 @@
+# @package _global_
+# Predictive quality of the frozen PFN on BO contexts vs random designs, and label structure by resolution
+# (research_log/decisions/0007 §4, tests 1-2). Pre-registration: notebooks/10_2026-11-12_pfn_bo_inference.ipynb.
+# States: the 4000 labeled states of api_round1's pilot (split 4).
+defaults:
+  - override /task: pfn_bo_inference
+
+task:
+  d: 2

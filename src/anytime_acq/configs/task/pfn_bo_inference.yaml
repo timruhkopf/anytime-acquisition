@@ -1,0 +1,20 @@
+# Predictive quality of the PFN on BO contexts (tasks/pfn_bo_inference.py; research_log/decisions/0007 §4).
+name: pfn_bo_inference
+d: 2
+pfn: pfn_large
+n_init_per_d: 2
+T_per_d: 10
+candidates: {n_sobol: 1024, n_local: 64, local_sigmas: [0.01, 0.05, 0.2]}  # engine only (not used for proposals)
+labels:              # the round-1 label set (as api_probe / api_gate), relative to the runs root, pinned
+  path: api_round1/pilot_20261111-133311/0/tracking/artifacts/labels.pt
+  sha256: c27d893923d0f003ed7b1e1148ad6670c1f5fb061ac7cdf137eb2a8a64c678d9
+n_states: 4000
+points: {n_uniform: 16, n_local: 16, local_sigmas: [0.01, 0.05, 0.2]}  # + EI's pick at the state
+event_bins: [0, 5, 20]   # events f(x) < incumbent - k PFN bins (the context's own incumbent)
+n_boot: 200
+group: 128               # states per PFN pass
+draw_chunk: 500          # tasks drawn together (memory); f only, so a cheap f* search
+task_draw: {n_dense: 256, n_refine: 1, refine_steps: 1}
+tf32: false
+device: cuda
+chunk: 256

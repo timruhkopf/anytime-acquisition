@@ -1,0 +1,1 @@
+{"member": 0, "overrides": ["experiment=acq_distill", "task.d=1", "task.train.steps=12000", "task.branch.post=2", "task.branch.y_in=true", "task.branch.inc_token=true", "task.branch.aligned=true", "task.train.tasks.n_tasks=1000", "task.eval.tasks.n_tasks=100", "task.eval.n_closed_loop=100"]}

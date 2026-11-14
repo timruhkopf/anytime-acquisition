@@ -1,0 +1,27 @@
+{
+ "id": "pilot_20261113-075212",
+ "experiment": "ei_failure",
+ "stage": "pilot",
+ "kind": "grid",
+ "command": "just sweep detached pilot experiment=ei_failure",
+ "overrides": [
+  "experiment=ei_failure"
+ ],
+ "backend": "detached",
+ "commit": "daaa02374c18f6a8eddae80732332361f5bfbeca",
+ "branch": "HEAD",
+ "tag": "sweep/ei_failure/pilot_20261113-075212",
+ "allow_dirty": false,
+ "host": "ulysses",
+ "created": "2026-11-13T07:52:12",
+ "editable_dependencies": {},
+ "status_counts": {
+  "DONE": 1
+ },
+ "first_start": "2026-11-13T07:52:14",
+ "last_end": "2026-11-13T09:04:28",
+ "wall_h": 1.204,
+ "device_h": 0.0,
+ "snapshot_created": "2026-11-13T09:05:11",
+ "sweep_dir": "runs/ei_failure/pilot_20261113-075212"
+}

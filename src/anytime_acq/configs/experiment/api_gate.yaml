@@ -1,0 +1,9 @@
+# @package _global_
+# Model-based gate (research_log/decisions/0003 §8.3, Stages 1a + 1b): does a PFN-only lookahead find the
+# headroom over EI? Pre-registration: notebooks/07_2026-11-11_api_gate.ipynb.
+# Stage 1a on the first 2000 labeled states of api_round1's pilot (split 4); Stage 1b on 200 split-1 tasks.
+defaults:
+  - override /task: api_gate
+
+task:
+  d: 2

@@ -1,0 +1,8 @@
+# @package _global_
+# Basin decomposition of static arms and exact, luck-corrected option labels (issue #13, decision 0008).
+# Pre-registration: notebooks/12_2026-11-12_option_headroom.ipynb.
+defaults:
+  - override /task: option_headroom
+
+task:
+  d: 2

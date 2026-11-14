@@ -1,0 +1,24 @@
+{
+ "id": "sanity_20261113-113528",
+ "experiment": "mixture_policy",
+ "stage": "sanity",
+ "kind": "grid",
+ "command": "just sweep detached sanity experiment=mixture_policy task.search.generations=3 task.train_tasks.n_tasks=128 task.val_tasks.n_tasks=128 task.test_tasks.n_tasks=128",
+ "overrides": [
+  "experiment=mixture_policy",
+  "task.search.generations=3",
+  "task.train_tasks.n_tasks=128",
+  "task.val_tasks.n_tasks=128",
+  "task.test_tasks.n_tasks=128"
+ ],
+ "backend": "detached",
+ "commit": "7f233a3503d6d34d88ab8c31a9fc3a224984cafc",
+ "branch": "HEAD",
+ "tag": "sweep/mixture_policy/sanity_20261113-113528",
+ "allow_dirty": false,
+ "dirty_paths": [],
+ "editable_dependencies": {},
+ "host": "ulysses",
+ "created": "2026-11-13T11:35:28",
+ "n_members": 1
+}

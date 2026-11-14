@@ -1,0 +1,36 @@
+seed: 0
+task.T_per_d: 10
+task.arms: '["ei", "pi0.01", "ucb0.995", "mes", "mean"]'
+task.candidates.local_sigmas: '[0.01, 0.05, 0.2]'
+task.candidates.n_local: 64
+task.candidates.n_sobol: 1024
+task.chunk: 256
+task.d: 2
+task.deltas: '[1, 10]'
+task.descent.check_lr: 0.001
+task.descent.check_steps: 600
+task.descent.chunk: 65536
+task.descent.lr: 0.003
+task.descent.steps: 300
+task.device: cuda
+task.eps: 1.0e-06
+task.ks: '[1, 3, 5]'
+task.n_boot: 2000
+task.n_init_per_d: 2
+task.n_null: 2
+task.name: option_headroom
+task.part_a.n_tasks: 500
+task.part_a.split: 0
+task.part_a.task_offset: 0
+task.part_b.n_tasks: 800
+task.part_b.split: 4
+task.part_b.t_max: 15
+task.part_b.task_offset: 20000
+task.pfn: pfn_large
+task.primary_k: 3
+task.seeds: '[0, 1]'
+task.task_draw.n_dense: 16384
+task.task_draw.n_refine: 16
+task.task_draw.refine_steps: 200
+task.tf32: false
+task.worthwhile_log10: 0.022

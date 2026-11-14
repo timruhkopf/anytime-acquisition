@@ -1,0 +1,43 @@
+seed: 0
+task.T_per_d: 10
+task.arms: '["ei", "ucb0.995"]'
+task.base: ei
+task.candidates.local_sigmas: '[0.01, 0.05, 0.2]'
+task.candidates.n_local: 64
+task.candidates.n_sobol: 1024
+task.chunk: 256
+task.d: 2
+task.device: cuda
+task.eps: 1.0e-06
+task.feature_sets: '["data", "belief", "pfn"]'
+task.fit.batch: 1024
+task.fit.dropout: 0.1
+task.fit.epochs: 150
+task.fit.lr: 0.002
+task.fit.n_ens: 2
+task.fit.patience: 15
+task.fit.weight_decay: 0.001
+task.fit.width: 128
+task.ks: '[3]'
+task.learners: '["ridge", "mlp"]'
+task.n_boot: 2000
+task.n_boot_corr: 300
+task.n_folds: 5
+task.n_init_per_d: 2
+task.n_inner: 4
+task.name: ei_failure
+task.pfn: pfn_large
+task.primary: gate/belief/mlp
+task.rest: true
+task.seeds: '[0, 1]'
+task.steps: '[0, 2, 4, 6, 8, 10, 12, 14]'
+task.task_chunk: 500
+task.task_draw.n_dense: 16384
+task.task_draw.n_refine: 16
+task.task_draw.refine_steps: 200
+task.tasks.n_tasks: 3000
+task.tasks.split: 4
+task.tasks.task_offset: 50000
+task.tf32: false
+task.worthwhile_log10: 0.022
+task.z_pca: 32

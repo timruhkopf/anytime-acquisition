@@ -1,0 +1,37 @@
+seed: 0
+task.T: 20
+task.arms: '["ei", "pi0.01", "ucb0.995", "mes", "mean"]'
+task.candidates.local_sigmas: '[0.01, 0.05, 0.2]'
+task.candidates.n_local: 32
+task.candidates.n_sobol: 512
+task.chunk: 256
+task.d: 2
+task.device: cuda
+task.eps: 0.001
+task.n_boot: 2000
+task.n_init: 4
+task.name: mixture_policy
+task.pfn: pfn_large
+task.report_eps: '[0.001, 0.0001, 1e-06]'
+task.search.generations: 50
+task.search.init_bias: 3.0
+task.search.lr: 0.15
+task.search.pairs: 6
+task.search.sigma: 0.3
+task.search.val_every: 5
+task.task_chunk: 128
+task.task_draw.n_dense: 16384
+task.task_draw.n_refine: 16
+task.task_draw.refine_steps: 200
+task.test_tasks.n_tasks: 1536
+task.test_tasks.split: 4
+task.test_tasks.task_offset: 90000
+task.tf32: false
+task.train_tasks.n_tasks: 512
+task.train_tasks.split: 4
+task.train_tasks.task_offset: 80000
+task.val_tasks.n_tasks: 512
+task.val_tasks.split: 4
+task.val_tasks.task_offset: 85000
+task.w_final: 0.5
+task.worthwhile_log10: 0.022

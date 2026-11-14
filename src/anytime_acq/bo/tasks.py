@@ -8,6 +8,7 @@ Minimization; y in [0, 1] on the training prior's ECDF scale.
 """
 
 from dataclasses import dataclass
+from typing import Protocol, runtime_checkable
 
 import torch
 from pfn_repro.checkpoints import make_prior
@@ -38,6 +39,22 @@ PER_FUNCTION = (
 def task_seed(split: int, d: int, i: int) -> int:
     """Disjoint seed ranges per split (0: tuning, 1: evaluation, 2: pilot, 3+: readout data) and d."""
     return split * 10_000_019 + d * 100_003 + i
+
+
+@runtime_checkable
+class TaskSet(Protocol):
+    """What the BO runner needs from a task list (`Tasks` here; BBOB in experimental/bbob.py)."""
+
+    d: int
+    seeds: list[int]
+    fstar: torch.Tensor
+
+    @property
+    def B(self) -> int: ...
+
+    def f(self, x: torch.Tensor, rows: torch.Tensor | None = None) -> torch.Tensor: ...
+
+    def lower_fstar(self, f_seen: torch.Tensor) -> None: ...
 
 
 def _select(prior: BNNPrior, rows: torch.Tensor) -> BNNPrior:

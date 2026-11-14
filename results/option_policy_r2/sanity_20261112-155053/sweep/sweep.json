@@ -1,0 +1,22 @@
+{
+ "id": "sanity_20261112-155053",
+ "experiment": "option_policy_r2",
+ "stage": "sanity",
+ "kind": "grid",
+ "command": "just sweep detached sanity experiment=option_policy_r2 task.tasks.n_tasks=100 task.task_chunk=50",
+ "overrides": [
+  "experiment=option_policy_r2",
+  "task.tasks.n_tasks=100",
+  "task.task_chunk=50"
+ ],
+ "backend": "detached",
+ "commit": "639fae6408992cac58f91024d5c20880cc582d2e",
+ "branch": "HEAD",
+ "tag": "sweep/option_policy_r2/sanity_20261112-155053",
+ "allow_dirty": false,
+ "dirty_paths": [],
+ "editable_dependencies": {},
+ "host": "ulysses",
+ "created": "2026-11-12T15:50:53",
+ "n_members": 1
+}

@@ -1,0 +1,8 @@
+# @package _global_
+# Can a policy that reads only the context choose options that beat EI? One-deviation option policy from exact
+# labels (issue #13, decision 0008 §4 step 3). Pre-registration: notebooks/13_2026-11-12_option_policy.ipynb.
+defaults:
+  - override /task: option_policy
+
+task:
+  d: 2

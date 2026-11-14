@@ -1,0 +1,25 @@
+{
+ "id": "sanity_20261111-163331",
+ "experiment": "api_decoder",
+ "stage": "sanity",
+ "kind": "grid",
+ "command": "just run detached sanity experiment=api_decoder task.label.n_tasks=200 task.label.chunk_tasks=200 task.calib.n_tasks=30 task.test.n_tasks=30 task.train.epochs=10",
+ "overrides": [
+  "experiment=api_decoder",
+  "task.label.n_tasks=200",
+  "task.label.chunk_tasks=200",
+  "task.calib.n_tasks=30",
+  "task.test.n_tasks=30",
+  "task.train.epochs=10"
+ ],
+ "backend": "detached",
+ "commit": "1c549976b041d4507baafb31601736ede62ab545",
+ "branch": "HEAD",
+ "tag": "sweep/api_decoder/sanity_20261111-163331",
+ "allow_dirty": false,
+ "dirty_paths": [],
+ "editable_dependencies": {},
+ "host": "ulysses",
+ "created": "2026-11-11T16:33:31",
+ "n_members": 1
+}

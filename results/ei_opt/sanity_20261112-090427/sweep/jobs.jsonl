@@ -1,0 +1,1 @@
+{"member": 0, "overrides": ["experiment=ei_opt", "task.d=2", "task.states.n_states=100", "task.rollouts.n_tasks=50"]}

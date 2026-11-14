@@ -1,0 +1,38 @@
+# Amortized policy improvement, round 2: the 0006 value decoder, Phase A (tasks/api_decoder.py,
+# experimental/decoder.py; research_log/decisions/0006 §3). Candidates, pi_0 and labels as round 1 (api.yaml).
+name: api_decoder
+d: 2
+pfn: pfn_large
+n_init_per_d: 2
+T_per_d: 10
+candidates: {n_sobol: 1024, n_local: 64, local_sigmas: [0.01, 0.05, 0.2]}  # pi_0's (EI's) candidate generator
+api_candidates: {n_global: 64, n_top: 4, n_local_per_point: 16, local_sigmas: [0.01, 0.03, 0.1]}  # C(s): 133
+labels:              # the round-1 label set (api_round1 pilot), relative to the runs root, pinned
+  path: api_round1/pilot_20261111-133311/0/tracking/artifacts/labels.pt
+  sha256: c27d893923d0f003ed7b1e1148ad6670c1f5fb061ac7cdf137eb2a8a64c678d9
+label:               # new states, made exactly as in round 1, after the pinned set's instances
+  split: 4
+  task_offset: 4000  # the pinned set holds split-4 instances 0..3999
+  n_tasks: 8000
+  chunk_tasks: 1000
+  n_labeled: 16
+  n_cont: 4
+  behaviour: {ei: 0.8, ucb0.99: 0.1, pi: 0.1}
+  val_frac: 0.1      # instances held out for early stopping (per-instance uniform, as round 1)
+  task_draw: {n_dense: 4096, n_refine: 8, refine_steps: 50}
+decoder:
+  read: [2, 4, 6, 8]  # PFN layer (0 = embedding, 8 = last block) read by decoder block b
+  width: 256
+  blocks: 4
+  heads: 4
+  n_bins: 64
+  zero_eps: 1.0e-3    # half-width of the bin at 0 (% of gap); a deviation needs a score above it
+train: {lr: 3.0e-4, wd: 0.01, batch: 64, epochs: 60, patience: 8}
+calib: {split: 0, n_tasks: 300, task_offset: 0, rules: [q0.1, q0.3, q0.5, mean]}  # conservative first
+test: {split: 1, n_tasks: 1000, task_offset: 0}
+group: 256             # states per input pass
+eps: 1.0e-4
+tf32: false
+device: cuda
+chunk: 256
+task_draw: {n_dense: 16384, n_refine: 16, refine_steps: 200}  # calibration and test tasks, as round 1

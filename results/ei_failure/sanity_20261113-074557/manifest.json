@@ -1,0 +1,29 @@
+{
+ "id": "sanity_20261113-074557",
+ "experiment": "ei_failure",
+ "stage": "sanity",
+ "kind": "grid",
+ "command": "just sweep detached sanity experiment=ei_failure task.tasks.n_tasks=100 task.task_chunk=50",
+ "overrides": [
+  "experiment=ei_failure",
+  "task.tasks.n_tasks=100",
+  "task.task_chunk=50"
+ ],
+ "backend": "detached",
+ "commit": "ab5ab73c6aab30158d372d410238e282a737b288",
+ "branch": "HEAD",
+ "tag": "sweep/ei_failure/sanity_20261113-074557",
+ "allow_dirty": false,
+ "host": "ulysses",
+ "created": "2026-11-13T07:45:57",
+ "editable_dependencies": {},
+ "status_counts": {
+  "DONE": 1
+ },
+ "first_start": "2026-11-13T07:46:00",
+ "last_end": "2026-11-13T07:48:39",
+ "wall_h": 0.044,
+ "device_h": 0.0,
+ "snapshot_created": "2026-11-13T07:48:52",
+ "sweep_dir": "runs/ei_failure/sanity_20261113-074557"
+}

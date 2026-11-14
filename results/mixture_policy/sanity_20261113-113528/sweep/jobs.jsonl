@@ -1,0 +1,1 @@
+{"member": 0, "overrides": ["experiment=mixture_policy", "task.search.generations=3", "task.train_tasks.n_tasks=128", "task.val_tasks.n_tasks=128", "task.test_tasks.n_tasks=128"]}

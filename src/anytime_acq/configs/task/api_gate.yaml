@@ -1,0 +1,18 @@
+# The model-based gate (tasks/api_gate.py, experimental/api_gate.py; research_log/decisions/0003 §8.3).
+name: api_gate
+d: 2
+pfn: pfn_large
+n_init_per_d: 2
+T_per_d: 10
+candidates: {n_sobol: 1024, n_local: 64, local_sigmas: [0.01, 0.05, 0.2]}  # pi_0's candidate generator (as api)
+api_candidates: {n_global: 64, n_top: 4, n_local_per_point: 16, local_sigmas: [0.01, 0.03, 0.1]}  # C(s), as api
+labels:              # a round-1 label set (artifact of an api run), relative to the runs root, pinned
+  path: api_round1/pilot_20261111-133311/0/tracking/artifacts/labels.pt
+  sha256: c27d893923d0f003ed7b1e1148ad6670c1f5fb061ac7cdf137eb2a8a64c678d9
+states: {n_states: 2000, n_cont: 4, rep_base: 100}   # Stage 1a: belief continuations per labeled candidate
+policy: {split: 1, n_tasks: 200, task_offset: 0, n_labeled: 16, n_cont: 4, rep_offset: 100}  # Stage 1b
+eps: 1.0e-4
+tf32: false
+device: cuda
+chunk: 256
+task_draw: {n_dense: 16384, n_refine: 16, refine_steps: 200}

@@ -1,0 +1,14 @@
+# @package _global_
+# Round 2 of policy iteration: one context-dependent deviation from the UCB schedule (issue #13).
+# The pipeline of option_policy with base = UCB(0.995), the static improvement found in round 1 (notebook 13).
+# Pre-registration: notebooks/14_2026-11-12_option_policy_r2.ipynb.
+defaults:
+  - override /task: option_policy
+
+task:
+  d: 2
+  base: ucb0.995
+  tasks: {split: 4, task_offset: 40000, n_tasks: 4000}
+  portfolios:
+    nomes: [ei, pi0.01, mean]
+    all: [ei, pi0.01, mes, mean]

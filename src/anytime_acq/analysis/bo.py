@@ -112,3 +112,21 @@ def switching_verdict(
     if sum(p["gain_hi"] < ruled_out for p in privileged) >= 2:
         return "NO-GO"
     return "INCONCLUSIVE"
+
+
+def headroom_verdict(
+    privileged: Sequence[dict[str, object]], null: Sequence[dict[str, object]], worthwhile: float = 0.10
+) -> str:
+    """The pre-registered rule of notebook 04 (bbob_switching), per surrogate; one paired_gain per d.
+
+    INVALID if a null CI excludes 0. GO (luck-corrected headroom) if the privileged controller gains
+    >= `worthwhile` over B* with its CI above 0 at >= 1 d and a positive point estimate at every other d.
+    NO-GO if its CI upper bound is below `worthwhile` at every d. Otherwise INCONCLUSIVE."""
+    if any(n["gain_lo"] > 0 or n["gain_hi"] < 0 for n in null):
+        return "INVALID"
+    strong = [p["gain"] >= worthwhile and p["gain_lo"] > 0 for p in privileged]
+    if any(strong) and all(s or p["gain"] > 0 for s, p in zip(strong, privileged, strict=True)):
+        return "GO"
+    if all(p["gain_hi"] < worthwhile for p in privileged):
+        return "NO-GO"
+    return "INCONCLUSIVE"

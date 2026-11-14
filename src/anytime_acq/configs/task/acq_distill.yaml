@@ -1,0 +1,37 @@
+# Distill the arms' acquisition rankings into an acquisition branch on the frozen PFN (tasks/acq_distill.py,
+# experimental/acq_branch.py; idea: research_log/decisions/0009). Pre-registration: notebooks/16_2026-11-13_acq_distill.ipynb.
+name: acq_distill
+d: 2
+pfn: pfn_large
+shape: {d1: [3, 15], d2: [4, 20], d4: [8, 40]}   # d -> [n_init, T]; context size <= 48
+candidates: {n_sobol: 1024, n_local: 64, local_sigmas: [0.01, 0.05, 0.2]}
+arms: [ei, pi0.01, ucb0.995, mes, mean]   # one output column per arm
+branch:
+  {width: 192, heads: 4, ff_mult: 2, read: null, self_attn: true, query_state: false, dropout: 0.0,
+   post: 0, y_in: false, inc_token: false, aligned: false}   # see experimental/acq_branch.py::BranchSpec
+train:
+  tasks: {split: 4, task_offset: 60000, n_tasks: 1500}
+  cand_seed: 2           # candidate seed of the arms' training runs (the deployment seed is 0)
+  n_random: 2            # runs of uniformly random points per task
+  steps: 8000
+  batch: 48
+  n_extra: 256           # fresh queries per state, beside its seed-0 candidate set
+  n_queries: 512         # queries per state in the loss: every arm's top 16, random others
+  lr: 3.0e-4
+  weight_decay: 0.01
+  warmup: 300
+  log_every: 100
+eval:
+  tasks: {split: 4, task_offset: 70000, n_tasks: 300}
+  n_random: 1
+  every: 1               # agreement at every `every`-th step
+  n_dense: 1024          # dense query set: grid (d <= 2) or Sobol
+  n_examples: 3          # tasks whose states are stored with the dense scores (d <= 2)
+  n_closed_loop: 300     # tasks of the closed-loop comparison
+task_chunk: 300
+task_draw: {n_dense: 16384, n_refine: 16, refine_steps: 200}
+eps: 1.0e-6
+n_boot: 2000
+tf32: false
+device: cuda
+chunk: 64

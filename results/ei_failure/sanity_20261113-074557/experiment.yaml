@@ -1,0 +1,8 @@
+# @package _global_
+# Can the context predict how EI's run ends, and does gating the UCB deviation by it beat the static schedule?
+# (issue #13). Pre-registration: notebooks/15_2026-11-12_ei_failure.ipynb.
+defaults:
+  - override /task: ei_failure
+
+task:
+  d: 2

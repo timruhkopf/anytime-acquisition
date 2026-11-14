@@ -1,0 +1,8 @@
+# @package _global_
+# How well is EI optimized, and a deterministic gradient-refined EI as the base policy (issue #13, decision 0007).
+# Pre-registration: notebooks/11_2026-11-12_ei_opt.ipynb.
+defaults:
+  - override /task: ei_opt
+
+task:
+  d: 2

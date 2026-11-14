@@ -1,0 +1,28 @@
+{
+ "id": "pilot_20261112-123724",
+ "experiment": "option_policy",
+ "stage": "pilot",
+ "kind": "grid",
+ "command": "just sweep detached pilot experiment=option_policy task.d=2",
+ "overrides": [
+  "experiment=option_policy",
+  "task.d=2"
+ ],
+ "backend": "detached",
+ "commit": "c36d0c36fbd5f7e512062dea4ec1fb7ffed681e2",
+ "branch": "HEAD",
+ "tag": "sweep/option_policy/pilot_20261112-123724",
+ "allow_dirty": false,
+ "host": "ulysses",
+ "created": "2026-11-12T12:37:24",
+ "editable_dependencies": {},
+ "status_counts": {
+  "DONE": 1
+ },
+ "first_start": "2026-11-12T12:37:26",
+ "last_end": "2026-11-12T14:39:14",
+ "wall_h": 2.03,
+ "device_h": 0.0,
+ "snapshot_created": "2026-11-12T15:32:41",
+ "sweep_dir": "runs/option_policy/pilot_20261112-123724"
+}

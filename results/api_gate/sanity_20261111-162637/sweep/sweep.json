@@ -1,0 +1,22 @@
+{
+ "id": "sanity_20261111-162637",
+ "experiment": "api_gate",
+ "stage": "sanity",
+ "kind": "grid",
+ "command": "just run detached sanity experiment=api_gate task.states.n_states=100 task.policy.n_tasks=20",
+ "overrides": [
+  "experiment=api_gate",
+  "task.states.n_states=100",
+  "task.policy.n_tasks=20"
+ ],
+ "backend": "detached",
+ "commit": "4f4c750ea0608cb778aa8c07203771e78ce576aa",
+ "branch": "HEAD",
+ "tag": "sweep/api_gate/sanity_20261111-162637",
+ "allow_dirty": false,
+ "dirty_paths": [],
+ "editable_dependencies": {},
+ "host": "ulysses",
+ "created": "2026-11-11T16:26:37",
+ "n_members": 1
+}

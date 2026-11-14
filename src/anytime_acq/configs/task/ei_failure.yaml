@@ -1,0 +1,32 @@
+# Can the context predict how EI's run ends, and does gating the UCB deviation by it beat the static schedule?
+# (tasks/ei_failure.py, analysis/ei_failure.py). Pre-registration: notebooks/15_2026-11-12_ei_failure.ipynb.
+# Labels and context are collected by tasks/option_policy.py::collect.
+name: ei_failure
+d: 2
+pfn: pfn_large
+n_init_per_d: 2
+T_per_d: 10
+candidates: {n_sobol: 1024, n_local: 64, local_sigmas: [0.01, 0.05, 0.2]}
+base: ei
+arms: [ei, ucb0.995]     # options: UCB for 3 steps, UCB for the rest
+ks: [3]
+rest: true
+steps: [0, 2, 4, 6, 8, 10, 12, 14]
+seeds: [0, 1]
+tasks: {split: 4, task_offset: 50000, n_tasks: 3000}   # fresh (option_policy 30000.., option_policy_r2 40000..)
+task_chunk: 500
+task_draw: {n_dense: 16384, n_refine: 16, refine_steps: 200}
+eps: 1.0e-6
+feature_sets: [data, belief, pfn]
+learners: [ridge, mlp]   # ridge: one model per decision step; mlp: one model over all steps
+z_pca: 32
+fit: {width: 128, epochs: 150, patience: 15, batch: 1024, lr: 2.0e-3, weight_decay: 1.0e-3, dropout: 0.1, n_ens: 2}
+n_folds: 5
+n_inner: 4
+primary: gate/belief/mlp
+worthwhile_log10: 0.022
+n_boot: 2000
+n_boot_corr: 300
+tf32: false
+device: cuda
+chunk: 256

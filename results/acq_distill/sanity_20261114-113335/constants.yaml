@@ -1,0 +1,51 @@
+seed: 0
+task.arms: '["ei", "pi0.01", "ucb0.995", "mes", "mean"]'
+task.branch.aligned: true
+task.branch.dropout: 0.0
+task.branch.ff_mult: 2
+task.branch.heads: 4
+task.branch.inc_token: true
+task.branch.post: 2
+task.branch.query_state: false
+task.branch.self_attn: true
+task.branch.width: 192
+task.branch.y_in: true
+task.candidates.local_sigmas: '[0.01, 0.05, 0.2]'
+task.candidates.n_local: 64
+task.candidates.n_sobol: 1024
+task.chunk: 64
+task.d: 1
+task.device: cuda
+task.eps: 1.0e-06
+task.eval.every: 1
+task.eval.n_closed_loop: 100
+task.eval.n_dense: 1024
+task.eval.n_examples: 3
+task.eval.n_random: 1
+task.eval.tasks.n_tasks: 100
+task.eval.tasks.split: 4
+task.eval.tasks.task_offset: 70000
+task.n_boot: 2000
+task.name: acq_distill
+task.pfn: pfn_large
+task.shape.d1: '[3, 15]'
+task.shape.d2: '[4, 20]'
+task.shape.d4: '[8, 40]'
+task.task_chunk: 300
+task.task_draw.n_dense: 16384
+task.task_draw.n_refine: 16
+task.task_draw.refine_steps: 200
+task.tf32: false
+task.train.batch: 48
+task.train.cand_seed: 2
+task.train.log_every: 100
+task.train.lr: 0.0003
+task.train.n_extra: 256
+task.train.n_queries: 512
+task.train.n_random: 2
+task.train.steps: 12000
+task.train.tasks.n_tasks: 1000
+task.train.tasks.split: 4
+task.train.tasks.task_offset: 60000
+task.train.warmup: 300
+task.train.weight_decay: 0.01

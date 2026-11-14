@@ -87,6 +87,7 @@ luck by construction ([notebook 02](notebooks/02_2026-10-21_switching.ipynb)):
 | 0a | Which static arms are competitive with `pfn_large`, per d? | _running_ | [notebook 01](notebooks/01_2026-10-21_static_tune.ipynb) |
 | 0b | How much does non-anticipating switching gain over B\*? | _pre-registered_ | [notebook 02](notebooks/02_2026-10-21_switching.ipynb) |
 | 0c | Does an action expert reading `pfn_large` learn EI better than one trained from scratch? | _planned_ | [issue #2](https://github.com/timruhkopf/anytime-acquisition/issues/2) |
+| 0d | Is there luck-corrected switching headroom off the prior (BBOB, GP and PFN)? | **GO** (both): privileged +59/+19% (GP), +66/+29% (PFN) at d = 2/5, null ≈ 0; per-function static choice ≈ 0 | [notebook 04](notebooks/04_2026-10-22_bbob_switching.ipynb), [issue #8](https://github.com/timruhkopf/anytime-acquisition/issues/8) |
 | 1 | Train the amortized policy | only if 0b is GO | — |
 
 **Prior evidence (predecessor, pfn-acqpolicy).** No robust gain from switching. The upper bound was

@@ -1,0 +1,27 @@
+{
+ "id": "confirm_20261022-145708",
+ "experiment": "bbob_switching",
+ "stage": "confirm",
+ "kind": "grid",
+ "command": "just sweep detached confirm experiment=bbob_switching task.split=1 task.surrogate=gp task.null_reference=true 'task.base_by_d={2:ucb0.9,5:ucb0.9}' 'task.arms_by_d={2:[ucb0.9,ei,pi0.01,ucb0.99,mes,mean],5:[ucb0.9,ei,pi0.01,ucb0.99,mes,mean]}' task.method=static,privileged,equal_arms task.d=2,5",
+ "overrides": [
+  "experiment=bbob_switching",
+  "task.split=1",
+  "task.surrogate=gp",
+  "task.null_reference=true",
+  "task.base_by_d={2:ucb0.9,5:ucb0.9}",
+  "task.arms_by_d={2:[ucb0.9,ei,pi0.01,ucb0.99,mes,mean],5:[ucb0.9,ei,pi0.01,ucb0.99,mes,mean]}",
+  "task.method=static,privileged,equal_arms",
+  "task.d=2,5"
+ ],
+ "backend": "detached",
+ "commit": "63900a28b7bf6f797be6c5c5138df38f641160da",
+ "branch": "HEAD",
+ "tag": "sweep/bbob_switching/confirm_20261022-145708",
+ "allow_dirty": false,
+ "dirty_paths": [],
+ "editable_dependencies": {},
+ "host": "ulysses",
+ "created": "2026-10-22T14:57:08",
+ "n_members": 6
+}

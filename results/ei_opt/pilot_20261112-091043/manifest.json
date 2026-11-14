@@ -1,0 +1,28 @@
+{
+ "id": "pilot_20261112-091043",
+ "experiment": "ei_opt",
+ "stage": "pilot",
+ "kind": "grid",
+ "command": "just sweep detached pilot experiment=ei_opt task.d=2",
+ "overrides": [
+  "experiment=ei_opt",
+  "task.d=2"
+ ],
+ "backend": "detached",
+ "commit": "295a9b90b750c838126de7db6e5c34c7fcd7fead",
+ "branch": "HEAD",
+ "tag": "sweep/ei_opt/pilot_20261112-091043",
+ "allow_dirty": false,
+ "host": "ulysses",
+ "created": "2026-11-12T09:10:43",
+ "editable_dependencies": {},
+ "status_counts": {
+  "DONE": 1
+ },
+ "first_start": "2026-11-12T09:10:45",
+ "last_end": "2026-11-12T09:37:06",
+ "wall_h": 0.439,
+ "device_h": 0.0,
+ "snapshot_created": "2026-11-12T09:38:07",
+ "sweep_dir": "runs/ei_opt/pilot_20261112-091043"
+}

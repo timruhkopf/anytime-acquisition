@@ -1,0 +1,28 @@
+{
+ "id": "pilot_20261113-152733",
+ "experiment": "mixture_policy",
+ "stage": "pilot",
+ "kind": "grid",
+ "command": "just sweep detached pilot experiment=mixture_policy task.d=2",
+ "overrides": [
+  "experiment=mixture_policy",
+  "task.d=2"
+ ],
+ "backend": "detached",
+ "commit": "0789f24f4e482ef4454cd056fe52d3e186e033e8",
+ "branch": "HEAD",
+ "tag": "sweep/mixture_policy/pilot_20261113-152733",
+ "allow_dirty": false,
+ "host": "ulysses",
+ "created": "2026-11-13T15:27:33",
+ "editable_dependencies": {},
+ "status_counts": {
+  "DONE": 1
+ },
+ "first_start": "2026-11-13T15:27:36",
+ "last_end": "2026-11-13T17:04:12",
+ "wall_h": 1.61,
+ "device_h": 0.0,
+ "snapshot_created": "2026-11-14T10:51:20",
+ "sweep_dir": "runs/mixture_policy/pilot_20261113-152733"
+}

@@ -1,0 +1,1 @@
+{"member": 0, "overrides": ["experiment=api_decoder", "task.label.n_tasks=200", "task.label.chunk_tasks=200", "task.calib.n_tasks=30", "task.test.n_tasks=30", "task.train.epochs=10"]}

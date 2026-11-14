@@ -1,0 +1,19 @@
+# @package _global_
+# Luck-corrected switching headroom on BBOB with GP and PFN surrogates (issue #8).
+# Pre-registration: notebooks/04_2026-10-22_bbob_switching.ipynb.
+# pilot (selection, split 0 = instance 1):  task.method=static task.split=0 task.surrogate=gp,pfn task.d=2,5
+# confirm (evaluation, split 1 = instances 2, 3): task.split=1 task.surrogate=gp,pfn task.d=2,5
+#   task.method=static,privileged,equal_arms  with base_by_surrogate/arms from the pilot's selection
+defaults:
+  - override /task: bo
+
+task:
+  benchmark: bbob
+  surrogate: gp
+  split: 0
+  method: static
+  arms: [ei, pi0.01, ucb0.9, ucb0.99, mes, mean]
+  base: ei
+  null_reference: false
+  eps: 1.0e-8           # BBOB regrets reach 1e-8 (COCO's final target); f* = 0 exactly
+  rollout_candidates: {n_sobol: 512, n_local: 32, local_sigmas: [0.01, 0.05, 0.2]}  # rollouts only

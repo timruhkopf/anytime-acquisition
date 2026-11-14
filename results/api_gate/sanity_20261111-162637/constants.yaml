@@ -1,0 +1,31 @@
+seed: 0
+task.T_per_d: 10
+task.api_candidates.local_sigmas: '[0.01, 0.03, 0.1]'
+task.api_candidates.n_global: 64
+task.api_candidates.n_local_per_point: 16
+task.api_candidates.n_top: 4
+task.candidates.local_sigmas: '[0.01, 0.05, 0.2]'
+task.candidates.n_local: 64
+task.candidates.n_sobol: 1024
+task.chunk: 256
+task.d: 2
+task.device: cuda
+task.eps: 0.0001
+task.labels.path: api_round1/pilot_20261111-133311/0/tracking/artifacts/labels.pt
+task.labels.sha256: c27d893923d0f003ed7b1e1148ad6670c1f5fb061ac7cdf137eb2a8a64c678d9
+task.n_init_per_d: 2
+task.name: api_gate
+task.pfn: pfn_large
+task.policy.n_cont: 4
+task.policy.n_labeled: 16
+task.policy.n_tasks: 20
+task.policy.rep_offset: 100
+task.policy.split: 1
+task.policy.task_offset: 0
+task.states.n_cont: 4
+task.states.n_states: 100
+task.states.rep_base: 100
+task.task_draw.n_dense: 16384
+task.task_draw.n_refine: 16
+task.task_draw.refine_steps: 200
+task.tf32: false

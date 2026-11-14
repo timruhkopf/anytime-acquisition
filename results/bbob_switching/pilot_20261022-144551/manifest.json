@@ -1,0 +1,31 @@
+{
+ "id": "pilot_20261022-144551",
+ "experiment": "bbob_switching",
+ "stage": "pilot",
+ "kind": "grid",
+ "command": "just sweep detached pilot experiment=bbob_switching task.split=0 task.method=static task.surrogate=gp,pfn task.d=2,5",
+ "overrides": [
+  "experiment=bbob_switching",
+  "task.split=0",
+  "task.method=static",
+  "task.surrogate=gp,pfn",
+  "task.d=2,5"
+ ],
+ "backend": "detached",
+ "commit": "135eb56e9d719ae3b3d7490472293f8847a94180",
+ "branch": "HEAD",
+ "tag": "sweep/bbob_switching/pilot_20261022-144551",
+ "allow_dirty": false,
+ "host": "ulysses",
+ "created": "2026-10-22T14:45:51",
+ "editable_dependencies": {},
+ "status_counts": {
+  "DONE": 4
+ },
+ "first_start": "2026-10-22T14:45:52",
+ "last_end": "2026-10-22T14:48:10",
+ "wall_h": 0.037,
+ "device_h": 0.0,
+ "snapshot_created": "2026-10-22T14:48:53",
+ "sweep_dir": "runs/bbob_switching/pilot_20261022-144551"
+}
