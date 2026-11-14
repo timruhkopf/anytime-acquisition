@@ -21,3 +21,25 @@ See the description at the top of `notebooks/17_2026-11-13_mixture_policy.ipynb`
 **Revision before the pilot:** none to the design or the rule. Order of the members: d = 4 first. In d = 2 at this floor the arms are nearly tied, so there is little for a mixture to gain; d = 4 with a tight budget is the regime the question is about.
 
 **Next.** The pilot as pre-registered, member `task.d=4 task.n_init=8` first, then `task.d=2`.
+
+## §2 Pilot, d = 4 member (2026-11-13)
+
+**What ran.** `task.d=4 task.n_init=8`, T = 20, 512 training / 512 validation / 1536 test tasks, 50 generations per phase, on ulysses 11:57–15:27 (`results/mixture_policy/pilot_20261113-115739`, code 0789f24; 1 member, DONE). Search 179 min, test 31 min, GPU shared with two other runs.
+
+**Result** (differences of log10(regret + 1e-3), positive = better; paired over the 1536 test tasks, 95% bootstrap CI; `summary` table):
+- Context-dependent over budget-only mixture, J: **+0.007 [−0.007, 0.021]** (seed 0); other candidate set: −0.002 [−0.018, 0.013].
+- Budget-only mixture over the best arm (MES), J: **+0.030 [0.016, 0.045]**; other candidate set: +0.013 [−0.002, 0.027].
+- Uniform mixture (never trained) over MES, J: +0.016 [0.001, 0.031]; other candidate set: +0.014 [−0.001, 0.029].
+- Over EI, J: budget +0.042 [0.026, 0.060], context +0.049 [0.033, 0.067]; final regret only: +0.069 [0.049, 0.091] and +0.083 [0.062, 0.105].
+- Levels (seed 0), area / final: EI −2.124 / −2.391, MES −2.099 / −2.441, UCB(0.995) −2.056 / −2.426, PI(0.01) −2.065 / −2.337, uniform −2.133 / −2.439, budget −2.139 / −2.460, context −2.140 / −2.474.
+- Search (`train` table): validation J −2.256 at the start, −2.273 accepted after the budget phase, −2.299 after the context phase.
+
+**Interpretation.**
+- Mixing the arms gets both ends at once: EI's early speed and MES's final regret. That is the Pareto corner asked for, but the step beyond the best arm is 3–7% less regret.
+- About half of it comes from mixing at all (uniform weights); the learned budget schedule adds the rest on the trained candidate set and nothing on the other one.
+- Context adds nothing measurable. The two learned policies use very different weights and reach the same outcome: the objective is flat inside the hull.
+- The paired search does produce a usable signal (validation and test both move), so the objective can be optimized directly; the hull of these arms is simply small (the four real arms span 0.07 in J).
+
+**Verdict: NO-GO** for the context-dependent mixture in d = 4 (pre-registered rule; `just decide` not yet run, d = 2 member pending).
+
+**Next.** d = 2 member (`pilot_20261113-152733`, running). Then, per decision 0010: the gain has to come from outside the hull (the extra dimension on the branch), with the same paired objective and an optimizer that scales.
