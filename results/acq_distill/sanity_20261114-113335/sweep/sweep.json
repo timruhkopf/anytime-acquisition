@@ -1,0 +1,29 @@
+{
+ "id": "sanity_20261114-113335",
+ "experiment": "acq_distill",
+ "stage": "sanity",
+ "kind": "grid",
+ "command": "just sweep detached sanity experiment=acq_distill task.d=1 task.train.steps=12000 task.branch.post=2 task.branch.y_in=true task.branch.inc_token=true task.branch.aligned=true task.train.tasks.n_tasks=1000 task.eval.tasks.n_tasks=100 task.eval.n_closed_loop=100",
+ "overrides": [
+  "experiment=acq_distill",
+  "task.d=1",
+  "task.train.steps=12000",
+  "task.branch.post=2",
+  "task.branch.y_in=true",
+  "task.branch.inc_token=true",
+  "task.branch.aligned=true",
+  "task.train.tasks.n_tasks=1000",
+  "task.eval.tasks.n_tasks=100",
+  "task.eval.n_closed_loop=100"
+ ],
+ "backend": "detached",
+ "commit": "9c091abb2afbe0cf6c373018be6698c7a35b4a20",
+ "branch": "HEAD",
+ "tag": "sweep/acq_distill/sanity_20261114-113335",
+ "allow_dirty": false,
+ "dirty_paths": [],
+ "editable_dependencies": {},
+ "host": "ulysses",
+ "created": "2026-11-14T11:33:35",
+ "n_members": 1
+}
