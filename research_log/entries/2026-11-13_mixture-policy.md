@@ -43,3 +43,22 @@ See the description at the top of `notebooks/17_2026-11-13_mixture_policy.ipynb`
 **Verdict: NO-GO** for the context-dependent mixture in d = 4 (pre-registered rule; `just decide` not yet run, d = 2 member pending).
 
 **Next.** d = 2 member (`pilot_20261113-152733`, running). Then, per decision 0010: the gain has to come from outside the hull (the extra dimension on the branch), with the same paired objective and an optimizer that scales.
+
+## §3 Pilot, d = 2 member, and both together (2026-11-14)
+
+**What ran.** `task.d=2`, same sizes as §2, on ulysses 2026-11-13 15:27 onwards (`results/mixture_policy/pilot_20261113-152733`, code 0789f24; 1 member, DONE).
+
+**Result** (as §2; `summary` table):
+- Context over budget-only, J: **+0.014 [0.003, 0.025]**; other candidate set +0.007 [−0.004, 0.019]. In the area alone +0.018 [0.007, 0.029] (other set +0.014 [0.003, 0.025]); in the final regret +0.009 [−0.005, 0.025].
+- Context over MES (best arm on validation): +0.045 [0.033, 0.057]; over EI (best arm on the test tasks): +0.034 [0.022, 0.046]; other candidate set +0.050 [0.036, 0.065] and +0.035 [0.023, 0.046].
+- Budget-only over MES: +0.032 [0.018, 0.045]; uniform mixture over MES: +0.031 [0.018, 0.044].
+- Search (`train` table): validation J −2.699 → −2.725 (budget) → −2.741 (context).
+
+**Both members.**
+- The in-context mixture beats every single arm on fresh tasks in d = 2 and d = 4, by 0.03–0.05 log10 (7–10% less regret); in d = 2 it holds on a second candidate set, in d = 4 it halves there.
+- The context's share is +0.014 (d = 2) and +0.007 (d = 4); the budget schedule's share over a uniform mixture is about zero in d = 2 and +0.014 in d = 4.
+- The arms' hull is small (the four real arms span 0.07 in J) and flat inside.
+
+**Verdict:** d = 2 **INCONCLUSIVE**, d = 4 **NO-GO** for "context over budget-only" by the pre-registered rule (`just decide` not yet run).
+
+**Next.** Per decision 0010: leave the hull. The paired objective can be optimized (validation and test both move); the gain available from reweighting these arms is under 0.05.

@@ -311,3 +311,16 @@ These are scratch checks (`uv run`, not tracked), run on 200 of the pinned label
 - option_policy_r2 (notebook 14): sanity done; pilot launched 09:04 (4000 tasks, ETA about 13:10).
 - Verified: notebook 15 executed on the snapshot, numbers re-read from cell outputs; tests pass (138).
 - Open: `just decide runs/ei_failure/pilot_20261113-075212 NO_GO` (blocked in the session).
+
+### 2026-11-14 11:15 — mixture_policy pilot (both members), option_policy_r2 pilot NO-GO, decisions 0009 and 0010
+
+- Decisions logged: 0009 (acquisition branch on the frozen PFN) and 0010 (from the arms to a learned acquisition function), both Tim's ideas written up.
+- mixture_policy (notebook 17; snapshots `pilot_20261113-115739` d = 4, `pilot_20261113-152733` d = 2; code 0789f24):
+  - The context-dependent mixture beats every arm: over MES +0.045 [0.033, 0.057] (d = 2), +0.037 [0.023, 0.052] (d = 4); over EI in d = 2 +0.034 [0.022, 0.046].
+  - Context over budget-only: +0.014 [0.003, 0.025] (d = 2, INCONCLUSIVE), +0.007 [−0.007, 0.021] (d = 4, NO-GO). An untrained uniform mixture already gives +0.031 / +0.016 over MES.
+- option_policy_r2 (notebook 14; snapshot `pilot_20261113-090450`): policy over the static schedule −0.023 [−0.043, −0.003], NO-GO. The schedule "UCB, then EI at the end" is +0.195 [0.164, 0.226] over EI.
+- acq_distill: the 12000-step d = 1 run (`runs/acq_distill/sanity_20261113-113139`) trained and then failed in its evaluation with a CUDA out-of-memory error (GPU shared three ways); `branch.pt` exists, no agreement tables.
+- The session stalled again from 2026-11-13 17:55 to 2026-11-14 10:50 (a commit command hung); the d = 4 option_headroom scan was only launched at 10:51 on 2026-11-14.
+- Two snapshot tables were recompressed losslessly (zstd) to pass the 2000 KB commit limit.
+- Verified: notebooks 14 and 17 executed on the snapshots, numbers re-read from cell outputs.
+- Open: `just decide` for ei_failure (NO_GO), option_policy_r2 (NO_GO), mixture_policy d = 2 (INCONCLUSIVE) and d = 4 (NO_GO), all blocked in the session.
